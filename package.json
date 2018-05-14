@@ -1,0 +1,24 @@
+{
+    "name": "tasks",
+    "displayName": "Tasks",
+    "description": "Load VSCode Tasks into Status Bar.",
+    "version": "0.1.0",
+    "publisher": "actboy168",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/actboy168/vscode-tasks"
+    },
+    "bugs": {
+        "url": "https://github.com/actboy168/vscode-tasks/issues"
+    },
+    "categories": [
+        "Other"
+    ],
+    "engines": {
+        "vscode": "^1.10.0"
+    },
+    "activationEvents": [
+        "*"
+    ],
+    "main": "./js/extension"
+}
