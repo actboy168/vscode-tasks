@@ -22,7 +22,7 @@ function loadTasks(context) {
         i.hide();
     });
     statusBarArray = [];
-    const config = vscode.workspace.getConfiguration('tasks');
+    const config = vscode.workspace.getConfiguration('tasks', vscode.window.activeTextEditor.document.uri);
     if (!config || !Array.isArray(config.tasks)) {
         return;
     }
