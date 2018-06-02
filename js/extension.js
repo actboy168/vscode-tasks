@@ -22,26 +22,28 @@ function loadTasks(context) {
         i.hide();
     });
     statusBarArray = [];
-    const config = vscode.workspace.getConfiguration('tasks');
-    if (!config || !Array.isArray(config.tasks)) {
-        return;
-    }
-    for (const task of config.tasks) {
-        const name = "label" in task ? task.label : task.taskName;
-        if (typeof name != 'string') {
+    for (const workspaceFolder of vscode.workspace.workspaceFolders) {
+        const config = vscode.workspace.getConfiguration('tasks', workspaceFolder.uri);
+        if (!config || !Array.isArray(config.tasks)) {
             continue;
         }
-        let statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
-        statusBar.text = name;
-        statusBar.command = "actboy168.task-" + name;
-        statusBar.show();
-        statusBarArray.push(statusBar);
-        context.subscriptions.push(statusBar);
-        if (!(name in taskMap)) {
-            context.subscriptions.push(vscode.commands.registerCommand(statusBar.command, () => {
-                vscode.commands.executeCommand("workbench.action.tasks.runTask", name);
-            }));
+        for (const task of config.tasks) {
+            const name = "label" in task ? task.label : task.taskName;
+            if (typeof name != 'string') {
+                continue;
+            }
+            let statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
+            statusBar.text = name;
+            statusBar.command = "actboy168.task-" + name;
+            statusBar.show();
+            statusBarArray.push(statusBar);
+            context.subscriptions.push(statusBar);
+            if (!(name in taskMap)) {
+                context.subscriptions.push(vscode.commands.registerCommand(statusBar.command, () => {
+                    vscode.commands.executeCommand("workbench.action.tasks.runTask", name);
+                }));
+            }
+            taskMap[name] = true
         }
-        taskMap[name] = true
     }
 }
