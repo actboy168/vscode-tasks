@@ -2,7 +2,7 @@
     "name": "tasks",
     "displayName": "Tasks",
     "description": "Load VSCode Tasks into Status Bar.",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "publisher": "actboy168",
     "repository": {
         "type": "git",
