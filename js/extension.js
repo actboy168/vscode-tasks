@@ -32,7 +32,7 @@ function loadTasks(context) {
             if (typeof name != 'string') {
                 continue;
             }
-            let statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
+            let statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 51);
             statusBar.text = name;
             statusBar.command = "actboy168.task-" + name;
             statusBar.show();
