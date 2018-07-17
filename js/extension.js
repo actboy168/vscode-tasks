@@ -7,6 +7,9 @@ function activate(context) {
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(() => {
         loadTasks(context);
     }));
+    context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders(() => {
+        loadTasks(context);
+    }));
     statusBarArray = [];
     taskMap = {};
     loadTasks(context);
@@ -22,6 +25,9 @@ function loadTasks(context) {
         i.hide();
     });
     statusBarArray = [];
+    if (vscode.workspace.workspaceFolders == undefined) {
+        return;
+    }
     for (const workspaceFolder of vscode.workspace.workspaceFolders) {
         const config = vscode.workspace.getConfiguration('tasks', workspaceFolder.uri);
         if (!config || !Array.isArray(config.tasks)) {
