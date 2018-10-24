@@ -38,6 +38,9 @@ function loadTasks(context) {
             if (typeof name != 'string') {
                 continue;
             }
+            if (task.options && task.options.statusbar == 'hide') {
+                continue;
+            }
             let statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 51);
             statusBar.text = name;
             statusBar.command = "actboy168.task-" + name;
