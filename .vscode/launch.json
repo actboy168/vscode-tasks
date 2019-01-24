@@ -8,8 +8,7 @@
             "runtimeExecutable": "${execPath}",
             "args": [
                 "--extensionDevelopmentPath=${workspaceFolder}"
-            ],
-            "sourceMaps": false
+            ]
         }
     ]
 }

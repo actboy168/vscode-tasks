@@ -2,7 +2,7 @@
     "name": "tasks",
     "displayName": "Tasks",
     "description": "Load VSCode Tasks into Status Bar.",
-    "version": "0.1.5",
+    "version": "0.1.6",
     "publisher": "actboy168",
     "repository": {
         "type": "git",
@@ -19,7 +19,7 @@
         "vscode": "^1.10.0"
     },
     "activationEvents": [
-        "*"
+        "workspaceContains:.vscode/tasks.json"
     ],
     "main": "./js/extension"
 }
