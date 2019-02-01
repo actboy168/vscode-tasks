@@ -3,11 +3,15 @@ const vscode = require('vscode');
 var statusBarArray = [];
 var taskMap = {};
 
-function loadTasks(context) {
+function deinitTasks(context) {
     statusBarArray.forEach(i => {
         i.dispose();
     });
     statusBarArray = [];
+}
+
+function loadTasks(context) {
+    deinitTasks(context)
     if (vscode.workspace.workspaceFolders == undefined) {
         return;
     }
@@ -51,4 +55,6 @@ function initTasks(context) {
     }));
     loadTasks(context);
 }
+
 exports.activate = initTasks;
+exports.deactivate = deinitTasks;
