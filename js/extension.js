@@ -3,26 +3,9 @@ const vscode = require('vscode');
 var statusBarArray = [];
 var taskMap = {};
 
-function activate(context) {
-    context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(() => {
-        loadTasks(context);
-    }));
-    context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders(() => {
-        loadTasks(context);
-    }));
-    statusBarArray = [];
-    taskMap = {};
-    loadTasks(context);
-}
-exports.activate = activate;
-
-function deactivate() {
-}
-exports.deactivate = deactivate;
-
 function loadTasks(context) {
     statusBarArray.forEach(i => {
-        i.hide();
+        i.dispose();
     });
     statusBarArray = [];
     if (vscode.workspace.workspaceFolders == undefined) {
@@ -56,3 +39,16 @@ function loadTasks(context) {
         }
     }
 }
+
+function initTasks(context) {
+    statusBarArray = [];
+    taskMap = {};
+    context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(() => {
+        loadTasks(context);
+    }));
+    context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders(() => {
+        loadTasks(context);
+    }));
+    loadTasks(context);
+}
+exports.activate = initTasks;
