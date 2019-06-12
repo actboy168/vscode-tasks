@@ -1,4 +1,4 @@
-# vscode-tasks
+# tasks
 This extension loads VSCode tasks into status bar.
 
 ## Options
@@ -10,11 +10,3 @@ You can hide some tasks with the following options directly in task.json:
   "statusbar": "hide"
 }
 ```
-
-## Source
-
-[GitHub](https://github.com/actboy168/vscode-tasks)
-
-## License
-
-[MIT](https://raw.githubusercontent.com/actboy168/vscode-tasks/master/LICENSE)
