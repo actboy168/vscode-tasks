@@ -57,8 +57,8 @@ function loadTasks(context) {
     vscode.tasks.fetchTasks().then((tasks)=>{
         for (const task of tasks) {
             let name = task.name;
-            let taskId = task._definition.id;
-            if (hide[taskId]) {
+            let taskId = task.definition.id;
+            if (taskId === undefined || hide[taskId]) {
                 continue;
             }
             let statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 51);
