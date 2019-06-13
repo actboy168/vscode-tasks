@@ -22,14 +22,18 @@ function computeTaskExecutionId(values) {
 
 function computeId(task) {
     const props = [];
+    if (typeof task.type == "string") {
     props.push(task.type);
-    if (task.command !== undefined) {
+    }
+    if (typeof task.command == "string") {
         props.push(task.command);
     }
-    if (task.args && task.args.length > 0) {
-        for (let arg of task.args) {
+    if (Array.isArray(task.args) && task.args.length > 0) {
+        for (var arg of task.args) {
+            if (typeof arg == "string") {
             props.push(arg);
         }
+    }
     }
     return computeTaskExecutionId(props);
 }
@@ -47,9 +51,13 @@ function loadTasks(context) {
             continue;
         }
         for (const task of config.tasks) {
-            if (task.options && task.options.statusbar == 'hide') {
-                let taskId = computeId(task);
-                hide[taskId] = true;
+            if ((task.options && task.options.statusbar == 'hide') || (config.options && config.options.statusbar == 'hide')) {
+                for (var key of ["type", "command", "args"]) {
+                    if (key in config && !(key in task)) {
+                    task[key] = config[key];
+                }
+            }
+                hide[computeId(task)] = true;
             }
         }
     }
