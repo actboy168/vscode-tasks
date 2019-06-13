@@ -23,7 +23,7 @@ function computeTaskExecutionId(values) {
 function computeId(task) {
     const props = [];
     if (typeof task.type == "string") {
-    props.push(task.type);
+        props.push(task.type);
     }
     if (typeof task.command == "string") {
         props.push(task.command);
@@ -31,9 +31,9 @@ function computeId(task) {
     if (Array.isArray(task.args) && task.args.length > 0) {
         for (var arg of task.args) {
             if (typeof arg == "string") {
-            props.push(arg);
+                props.push(arg);
+            }
         }
-    }
     }
     return computeTaskExecutionId(props);
 }
@@ -54,9 +54,9 @@ function loadTasks(context) {
             if ((task.options && task.options.statusbar == 'hide') || (config.options && config.options.statusbar == 'hide')) {
                 for (var key of ["type", "command", "args"]) {
                     if (key in config && !(key in task)) {
-                    task[key] = config[key];
+                        task[key] = config[key];
+                    }
                 }
-            }
                 hide[computeId(task)] = true;
             }
         }
@@ -66,7 +66,7 @@ function loadTasks(context) {
         for (const task of tasks) {
             let name = task.name;
             let taskId = task.definition.id;
-            if (taskId === undefined || hide[taskId]) {
+            if (task.source != "Workspace" || hide[taskId]) {
                 continue;
             }
             let statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 51);
