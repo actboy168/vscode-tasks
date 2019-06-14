@@ -1,4 +1,5 @@
 const vscode = require('vscode');
+const os = require('os');
 
 var statusBarArray = [];
 var statusBarIndex = 0;
@@ -12,6 +13,52 @@ function deactivate(context) {
     statusBarIndex = 0;
 }
 
+function getPlatKV(t) {
+    if (os.platform() == "win32") {
+        return t.windows
+    }
+    else if (os.platform() == "darwin") {
+        return t.osx
+    }
+    else {
+        return t.linux
+    }
+}
+
+function getValue(t, g, k) {
+    let pt = getPlatKV(t);
+    if (typeof pt == 'object' && k in pt) {
+        return pt[k];
+    }
+    if (k in t) {
+        return t[k];
+    }
+    let gt = getPlatKV(g);
+    if (typeof gt == 'object' && k in gt) {
+        return gt[k];
+    }
+    if (k in g) {
+        return g[k];
+    }
+}
+
+function getValue2(t, g, k1, k2) {
+    let pt = getPlatKV(t);
+    if (typeof pt == 'object' && k1 in pt && k2 in pt[k1]) {
+        return pt[k1][k2];
+    }
+    if (k1 in t && k2 in t[k1]) {
+        return t[k1][k2];
+    }
+    let gt = getPlatKV(g);
+    if (typeof gt == 'object' && k1 in gt && k2 in pt[k1]) {
+        return gt[k1][k2];
+    }
+    if (k1 in g && k2 in g[k1]) {
+        return g[k1][k2];
+    }
+}
+
 function computeTaskExecutionId(values) {
 	let id = '';
 	for (let i = 0; i < values.length; i++) {
@@ -20,16 +67,19 @@ function computeTaskExecutionId(values) {
 	return id;
 }
 
-function computeId(task) {
+function computeId(task, config) {
     const props = [];
-    if (typeof task.type == "string") {
-        props.push(task.type);
+    const type    = getValue(task, config, "type");
+    const command = getValue(task, config, "command");
+    const args    = getValue(task, config, "args");
+    if (typeof type == "string") {
+        props.push(type);
     }
-    if (typeof task.command == "string") {
-        props.push(task.command);
+    if (typeof command == "string") {
+        props.push(command);
     }
-    if (Array.isArray(task.args) && task.args.length > 0) {
-        for (var arg of task.args) {
+    if (Array.isArray(args) && args.length > 0) {
+        for (var arg of args) {
             if (typeof arg == "string") {
                 props.push(arg);
             }
@@ -51,13 +101,8 @@ function loadTasks(context) {
             continue;
         }
         for (const task of config.tasks) {
-            if ((task.options && task.options.statusbar == 'hide') || (config.options && config.options.statusbar == 'hide')) {
-                for (var key of ["type", "command", "args"]) {
-                    if (key in config && !(key in task)) {
-                        task[key] = config[key];
-                    }
-                }
-                hide[computeId(task)] = true;
+            if (getValue2(task, config, "options", "statusbar") == "hide") {
+                hide[computeId(task, config)] = true;
             }
         }
     }
