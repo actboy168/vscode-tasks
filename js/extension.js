@@ -51,7 +51,7 @@ function getValue2(t, g, k1, k2) {
         return t[k1][k2];
     }
     let gt = getPlatKV(g);
-    if (typeof gt == 'object' && k1 in gt && k2 in pt[k1]) {
+    if (typeof gt == 'object' && k1 in gt && k2 in gt[k1]) {
         return gt[k1][k2];
     }
     if (k1 in g && k2 in g[k1]) {
