@@ -69,9 +69,13 @@ function computeTaskExecutionId(values) {
 
 function computeId(task, config) {
     const props = [];
+    const name    = "label" in task ? task.label : task.taskName;
     const type    = getValue(task, config, "type");
     const command = getValue(task, config, "command");
     const args    = getValue(task, config, "args");
+    if (typeof name == "string") {
+        props.push(name);
+    }
     if (typeof type == "string") {
         props.push(type);
     }
@@ -111,7 +115,7 @@ function loadTasks(context) {
         for (const task of tasks) {
             let name = task.name;
             let taskId = task.definition.id;
-            if (task.source != "Workspace" || hide[taskId]) {
+            if (task.source != "Workspace" || hide[task.name+','+taskId]) {
                 continue;
             }
             let statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 51);
