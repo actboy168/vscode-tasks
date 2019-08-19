@@ -86,6 +86,8 @@ function computeId(task, config) {
         for (var arg of args) {
             if (typeof arg == "string") {
                 props.push(arg);
+            } else if (typeof arg == "object") {
+                props.push(arg.value);
             }
         }
     }
@@ -99,6 +101,7 @@ function loadTasks(context) {
     }
 
     let hide = {}
+    let statusbarLabels = {}
     for (const workspaceFolder of vscode.workspace.workspaceFolders) {
         const config = vscode.workspace.getConfiguration('tasks', workspaceFolder.uri);
         if (!config || !Array.isArray(config.tasks)) {
@@ -108,15 +111,16 @@ function loadTasks(context) {
             if (getValue2(task, config, "options", "statusbar") == "hide") {
                 hide[computeId(task, config)] = true;
             }
+            statusbarLabels[computeId(task, config)] = getValue2(task, config, "options", "statusbarLabel");
         }
     }
 
     let version = vscode.version.split(".");
-    let priority = version[1] == 36? 50: 51;
+    let priority = version[1] == 37? 50: 51;
 
     vscode.tasks.fetchTasks().then((tasks)=>{
         for (const task of tasks) {
-            let name = task.name;
+            let name = statusbarLabels[task.name + ',' + task.definition.id] || task.name;
             let taskId = task.definition.id;
             if (task.source != "Workspace" || hide[task.name+','+taskId]) {
                 continue;
