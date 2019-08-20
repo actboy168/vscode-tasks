@@ -116,7 +116,7 @@ function loadTasks(context) {
     }
 
     let version = vscode.version.split(".");
-    let priority = version[1] == 37? 50: 51;
+    let priority = version[1] >= 36? 50: 51;
 
     vscode.tasks.fetchTasks().then((tasks)=>{
         for (const task of tasks) {
