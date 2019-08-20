@@ -102,6 +102,7 @@ function loadTasks(context) {
 
     let hide = {}
     let statusbarLabels = {}
+
     for (const workspaceFolder of vscode.workspace.workspaceFolders) {
         const config = vscode.workspace.getConfiguration('tasks', workspaceFolder.uri);
         if (!config || !Array.isArray(config.tasks)) {
