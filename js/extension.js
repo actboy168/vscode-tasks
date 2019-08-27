@@ -86,6 +86,8 @@ function computeId(task, config) {
         for (var arg of args) {
             if (typeof arg == "string") {
                 props.push(arg);
+            } else if (typeof arg == "object") {
+                props.push(arg.value);
             }
         }
     }
