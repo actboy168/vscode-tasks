@@ -25,5 +25,13 @@
     "activationEvents": [
         "workspaceContains:.vscode/tasks.json"
     ],
-    "main": "./js/extension"
+    "main": "./js/extension",
+    "contributes": {
+        "jsonValidation": [
+            {
+                "fileMatch": "tasks.json",
+                "url": "./out/jshintrc.tasks.json"
+            }
+        ]
+    }
 }
