@@ -82,6 +82,22 @@ function computeId(task, config) {
     if (typeof command == "string") {
         props.push(command);
     }
+    else if (Array.isArray(command)) {
+        var cmds;
+        for (var c of command) {
+            if (typeof c == "string") {
+                if (cmds === undefined) {
+                    cmds = c;
+                }
+                else {
+                    cmds += ' ' + c;
+                }
+            }
+        }
+        if (cmds !== undefined) {
+            props.push(cmds);
+        }
+    }
     if (Array.isArray(args) && args.length > 0) {
         for (var arg of args) {
             if (typeof arg == "string") {
