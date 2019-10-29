@@ -116,35 +116,34 @@ function loadTasks(context) {
         return;
     }
 
-    let hide = {}
-    let statusbarLabels = {}
-
+    let statusBarInfo = {}
     for (const workspaceFolder of vscode.workspace.workspaceFolders) {
         const config = vscode.workspace.getConfiguration('tasks', workspaceFolder.uri);
         if (!config || !Array.isArray(config.tasks)) {
             continue;
         }
         for (const task of config.tasks) {
-            if (getValue2(task, config, "options", "statusbar") == "hide") {
-                hide[computeId(task, config)] = true;
+            let id = computeId(task, config);
+            statusBarInfo[id] = {
+                label: getValue2(task, config, "options", "statusbarLabel"),
+                hide: getValue2(task, config, "options", "statusbar") == "hide",
             }
-            statusbarLabels[computeId(task, config)] = getValue2(task, config, "options", "statusbarLabel");
         }
     }
 
     let version = vscode.version.split(".");
-    let priority = version[1] == 36? 50: 51;
+    let priority = version[1] == 36 ? 50 : 51;
 
-    vscode.tasks.fetchTasks().then((tasks)=>{
+    vscode.tasks.fetchTasks().then((tasks) => {
         for (const task of tasks) {
-            let name = statusbarLabels[task.name + ',' + task.definition.id] || task.name;
             let taskId = task.definition.id;
-            if (task.source != "Workspace" || hide[task.name+','+taskId]) {
+            let info = statusBarInfo[task.name + ',' + taskId]
+            if (task.source != "Workspace" || !info || info.hide) {
                 continue;
             }
             let statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, priority);
             let command = "actboy168.task." + statusBarIndex++;
-            statusBar.text = name;
+            statusBar.text = info.label || task.name;
             statusBar.command = command;
             statusBar.show();
             statusBarArray.push(statusBar);
