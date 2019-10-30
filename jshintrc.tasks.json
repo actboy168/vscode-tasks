@@ -22,7 +22,7 @@
                                     "label": {
                                         "type": "string",
                                         "default": "name for statusbar",
-                                        "description": "Provided by extension:tasks.\nSet the label of the statusbar."
+                                        "description": "Provided by extension:tasks.\nSet the label of the statusbar.\nYou can embed icons in the text by leveraging the syntax: $(icon-name)\nhttps://octicons.github.com"
                                     },
                                     "tooltip": {
                                         "type": "string",
@@ -31,8 +31,8 @@
                                     },
                                     "color": {
                                         "type": "string",
-                                        "default": "color for statusbar",
-                                        "description": "Provided by extension:tasks.\nSet the color of the statusbar.\nhttps://code.visualstudio.com/api/references/theme-color"
+                                        "default": "#FFF",
+                                        "description": "Provided by extension:tasks.\nSet the foreground color of the statusbar.\nhttps://code.visualstudio.com/api/references/theme-color"
                                     }
                                 }
                             }
