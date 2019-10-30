@@ -65,7 +65,15 @@ function getStatusBar(task, global, key) {
     if (res !== undefined) {
         return res;
     }
-    return getStatusBarPlat(global, key);
+    res = getStatusBarPlat(global, key);
+    if (res !== undefined) {
+        return res;
+    }
+    const settings = vscode.workspace.getConfiguration("tasks.default.statusbar");
+    if (settings !== undefined) {
+        return settings[key];
+    }
+    return undefined;
 }
 
 function computeTaskExecutionId(values) {

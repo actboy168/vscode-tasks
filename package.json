@@ -32,6 +32,14 @@
                 "fileMatch": "tasks.json",
                 "url": "./jshintrc.tasks.json"
             }
-        ]
+        ],
+        "configuration": {
+            "properties": {
+                "tasks.default.statusbar.hide": {
+                    "type": "boolean",
+                    "default": true
+                }
+            }
+        }
     }
 }
