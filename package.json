@@ -37,7 +37,7 @@
             "properties": {
                 "tasks.default.statusbar.hide": {
                     "type": "boolean",
-                    "default": true
+                    "default": false
                 }
             }
         }

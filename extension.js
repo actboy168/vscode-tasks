@@ -142,8 +142,10 @@ function loadTasks(context) {
         for (const task of config.tasks) {
             let taskId = computeId(task, config);
             statusBarInfo[taskId] = {
-                label: getStatusBar(task, config, "label"),
                 hide: getStatusBar(task, config, "hide"),
+                label: getStatusBar(task, config, "label"),
+                tooltip: getStatusBar(task, config, "tooltip"),
+                color: getStatusBar(task, config, "color"),
             }
         }
     }
@@ -161,6 +163,15 @@ function loadTasks(context) {
             let statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, priority);
             let command = "actboy168.task." + statusBarIndex++;
             statusBar.text = info.label || task.name;
+            statusBar.tooltip = info.tooltip;
+            if (typeof info.color == "string") {
+                if (info.color.slice(0,1) === "#") {
+                    statusBar.color = info.color;
+                }
+                else {
+                    statusBar.color = vscode.ThemeColor(info.color);
+                }
+            }
             statusBar.command = command;
             statusBar.show();
             statusBarArray.push(statusBar);

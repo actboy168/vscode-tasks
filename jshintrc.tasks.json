@@ -22,7 +22,17 @@
                                     "label": {
                                         "type": "string",
                                         "default": "name for statusbar",
-                                        "description": "Provided by extension:tasks.\nCustom task name to show on statusbar."
+                                        "description": "Provided by extension:tasks.\nSet the label of the statusbar."
+                                    },
+                                    "tooltip": {
+                                        "type": "string",
+                                        "default": "tooltip for statusbar",
+                                        "description": "Provided by extension:tasks.\nSet the tooltip of the statusbar."
+                                    },
+                                    "color": {
+                                        "type": "string",
+                                        "default": "color for statusbar",
+                                        "description": "Provided by extension:tasks.\nSet the color of the statusbar.\nhttps://code.visualstudio.com/api/references/theme-color"
                                     }
                                 }
                             }
