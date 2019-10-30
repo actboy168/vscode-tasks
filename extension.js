@@ -42,21 +42,30 @@ function getValue(t, g, k) {
     }
 }
 
-function getValue2(t, g, k1, k2) {
-    let pt = getPlatKV(t);
-    if (typeof pt == 'object' && k1 in pt && k2 in pt[k1]) {
-        return pt[k1][k2];
+function getStatusBarValue(tbl, key) {
+    if (("options" in tbl) && ("statusbar" in tbl.options) && (key in tbl.options.statusbar)) {
+        return tbl.options.statusbar[key];
     }
-    if (k1 in t && k2 in t[k1]) {
-        return t[k1][k2];
+    return undefined;
+}
+
+function getStatusBarPlat(tbl, key) {
+    let plat = getPlatKV(tbl);
+    if (typeof plat == "object") {
+        let res = getStatusBarValue(plat, key);
+        if (res !== undefined) {
+            return res;
+        }
     }
-    let gt = getPlatKV(g);
-    if (typeof gt == 'object' && k1 in gt && k2 in gt[k1]) {
-        return gt[k1][k2];
+    return getStatusBarValue(tbl, key);
+}
+
+function getStatusBar(task, global, key) {
+    let res = getStatusBarPlat(task, key);
+    if (res !== undefined) {
+        return res;
     }
-    if (k1 in g && k2 in g[k1]) {
-        return g[k1][k2];
-    }
+    return getStatusBarPlat(global, key);
 }
 
 function computeTaskExecutionId(values) {
@@ -123,10 +132,10 @@ function loadTasks(context) {
             continue;
         }
         for (const task of config.tasks) {
-            let id = computeId(task, config);
-            statusBarInfo[id] = {
-                label: getValue2(task, config, "options", "statusbarLabel"),
-                hide: getValue2(task, config, "options", "statusbar") == "hide",
+            let taskId = computeId(task, config);
+            statusBarInfo[taskId] = {
+                label: getStatusBar(task, config, "label"),
+                hide: getStatusBar(task, config, "hide"),
             }
         }
     }
@@ -136,8 +145,8 @@ function loadTasks(context) {
 
     vscode.tasks.fetchTasks().then((tasks) => {
         for (const task of tasks) {
-            let taskId = task.definition.id;
-            let info = statusBarInfo[task.name + ',' + taskId]
+            let taskId = task.name + ',' + task.definition.id;
+            let info = statusBarInfo[taskId]
             if (task.source != "Workspace" || !info || info.hide) {
                 continue;
             }

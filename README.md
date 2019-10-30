@@ -7,7 +7,9 @@ You can hide some tasks with the following options directly in tasks.json:
 ```json
 "label": "Test",
 "options": {
-  "statusbar": "hide"
+  "statusbar": {
+    "hide" : true
+  }
 }
 ```
 
@@ -16,6 +18,8 @@ You can change the name of the task displayed on the status bar with the followi
 ```json
 "label": "Test",
 "options": {
-  "statusbarLabel": "ts"
+  "statusbar": {
+    "label" : "ts"
+  }
 }
 ```

@@ -11,14 +11,20 @@
                         "type": "object",
                         "properties": {
                             "statusbar": {
-                                "type": "string",
-                                "enum": ["hide"],
-                                "description": "provided by extension:tasks\nset it as \"hide\"to hide the task on statusbar"
-                            },
-                            "statusbarLabel": {
-                                "type": "string",
-                                "default": "name for statusbar",
-                                "description": "provided by extension:tasks\ncustom task name to show on statusbar"
+                                "type": "object",
+                                "description": "Provided by extension:tasks.\nSet the task to display in the statusbar.",
+                                "properties": {
+                                    "hide": {
+                                        "type": "boolean",
+                                        "default": true,
+                                        "description": "Provided by extension:tasks.\nSet it as \"hide\"to hide the task on statusbar."
+                                    },
+                                    "label": {
+                                        "type": "string",
+                                        "default": "name for statusbar",
+                                        "description": "Provided by extension:tasks.\nCustom task name to show on statusbar."
+                                    }
+                                }
                             }
                         }
                     }
