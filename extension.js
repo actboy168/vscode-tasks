@@ -150,9 +150,6 @@ function loadTasks(context) {
         }
     }
 
-    let version = vscode.version.split(".");
-    let priority = version[1] == 36 ? 50 : 51;
-
     vscode.tasks.fetchTasks().then((tasks) => {
         for (const task of tasks) {
             let taskId = task.name + ',' + task.definition.id;
@@ -160,7 +157,7 @@ function loadTasks(context) {
             if (task.source != "Workspace" || !info || info.hide) {
                 continue;
             }
-            let statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, priority);
+            let statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 50);
             let command = "actboy168.task." + statusBarIndex++;
             statusBar.text = info.label || task.name;
             statusBar.tooltip = info.tooltip;
