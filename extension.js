@@ -160,7 +160,7 @@ function loadTasks(context) {
             let statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 50);
             let command = "actboy168.task." + statusBarIndex++;
             statusBar.text = info.label || task.name;
-            statusBar.tooltip = info.tooltip;
+            statusBar.tooltip = info.tooltip || task.detail;
             if (typeof info.color == "string") {
                 if (info.color.slice(0,1) === "#") {
                     statusBar.color = info.color;
