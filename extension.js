@@ -41,7 +41,9 @@ function getValue(t, g, k) {
 }
 
 function getStatusBarValue(tbl, key) {
-    if (("options" in tbl) && ("statusbar" in tbl.options) && (key in tbl.options.statusbar)) {
+    if (("options" in tbl) && (typeof tbl.options === 'object')
+        && ("statusbar" in tbl.options) && (typeof tbl.options.statusbar === 'object')
+        && (key in tbl.options.statusbar)) {
         return tbl.options.statusbar[key];
     }
     return undefined;
