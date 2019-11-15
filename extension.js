@@ -2,7 +2,6 @@ const vscode = require('vscode');
 const os = require('os');
 
 var statusBarArray = [];
-var statusBarIndex = 0;
 var commandMap = {};
 
 function deactivate(context) {
@@ -10,7 +9,6 @@ function deactivate(context) {
         i.dispose();
     });
     statusBarArray = [];
-    statusBarIndex = 0;
 }
 
 function getPlatKV(t) {
@@ -127,6 +125,18 @@ function computeId(task, config) {
     return computeTaskExecutionId(props);
 }
 
+function convertColor(color) {
+    if (typeof color == "string") {
+        if (color.slice(0,1) === "#") {
+            return info.color;
+        }
+        else {
+            return vscode.ThemeColor(color);
+        }
+    }
+    return undefined;
+}
+
 function loadTasks(context) {
     deactivate(context)
     if (vscode.workspace.workspaceFolders === undefined) {
@@ -134,6 +144,7 @@ function loadTasks(context) {
     }
 
     let statusBarInfo = {}
+    let statusBarIndex = 0;
     for (const workspaceFolder of vscode.workspace.workspaceFolders) {
         const config = vscode.workspace.getConfiguration('tasks', workspaceFolder.uri);
         if (!config || !Array.isArray(config.tasks)) {
@@ -161,14 +172,7 @@ function loadTasks(context) {
             let command = "actboy168.task." + statusBarIndex++;
             statusBar.text = info.label || task.name;
             statusBar.tooltip = info.tooltip || task.detail;
-            if (typeof info.color == "string") {
-                if (info.color.slice(0,1) === "#") {
-                    statusBar.color = info.color;
-                }
-                else {
-                    statusBar.color = vscode.ThemeColor(info.color);
-                }
-            }
+            statusBar.color = convertColor(info.color);
             statusBar.command = command;
             statusBar.show();
             statusBarArray.push(statusBar);
