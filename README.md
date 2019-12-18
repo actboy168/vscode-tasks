@@ -28,7 +28,7 @@ You can enable statusbar items based on the file in the active editor using the 
 
 For instance, the following would only display the "Test" button when a filename beginning with `test_` is the active editor:
 
-```js
+```json
 "label": "Test",
 "options": {
   "statusbar": {
