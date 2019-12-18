@@ -3,6 +3,7 @@ const os = require('os');
 
 var statusBarArray = [];
 var commandMap = {};
+var outputChannel;
 
 function deactivate(context) {
     statusBarArray.forEach(i => {
@@ -145,12 +146,16 @@ function syncStatusBarItemsWithActiveEditor() {
             continue;
         }
         statusBar.hide();
-        let currentFilePath = vscode.window.activeTextEditor && vscode.window.activeTextEditor.document.fileName;
-        if (!statusBar.filePattern || (currentFilePath && new RegExp(statusBar.filePattern).test(currentFilePath))) {
-            statusBar.show();
+        let currentFilePath = vscode.window.activeTextEditor && vscode.window.activeTextEditor.document.fileName,
+            filePattern = statusBar.filePattern,
+            showStatusBarItem = false;
+        try {
+            showStatusBarItem = !filePattern || (currentFilePath && new RegExp(statusBar.filePattern).test(currentFilePath));
+        } catch (error) {
+            outputChannel.appendLine(`Error validating status bar item '${statusBar.text}' filePattern for active file '${currentFilePath}'. ${error.name}: ${error.message}`);
         }
-        else {
-            statusBar.hide();
+        if (showStatusBarItem) {
+            statusBar.show();
         }
     }
 }
@@ -209,6 +214,7 @@ function loadTasks(context) {
 }
 
 function activate(context) {
+    outputChannel = vscode.window.createOutputChannel("VSCode Tasks");
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(() => {
         loadTasks(context);
     }));
