@@ -145,8 +145,8 @@ function syncStatusBarItemsWithActiveEditor() {
             continue;
         }
         statusBar.hide();
-        let currentFilePath = vscode.window.activeTextEditor.document.fileName;
-        if (!statusBar.filePattern || new RegExp(statusBar.filePattern).test(currentFilePath)) {
+        let currentFilePath = vscode.window.activeTextEditor && vscode.window.activeTextEditor.document.fileName;
+        if (!statusBar.filePattern || (currentFilePath && new RegExp(statusBar.filePattern).test(currentFilePath))) {
             statusBar.show();
         }
         else {
