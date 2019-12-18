@@ -139,6 +139,22 @@ function convertColor(color) {
     return undefined;
 }
 
+function syncStatusBarItemsWithActiveEditor() {
+    for (let statusBar of statusBarArray) {
+        if (!statusBar) {
+            continue;
+        }
+        statusBar.hide();
+        let currentFilePath = vscode.window.activeTextEditor.document.fileName;
+        if (!statusBar.filePattern || new RegExp(statusBar.filePattern).test(currentFilePath)) {
+            statusBar.show();
+        }
+        else {
+            statusBar.hide();
+        }
+    }
+}
+
 function loadTasks(context) {
     deactivate(context)
     if (vscode.workspace.workspaceFolders === undefined) {
@@ -159,6 +175,7 @@ function loadTasks(context) {
                 label: getStatusBar(task, config, "label"),
                 tooltip: getStatusBar(task, config, "tooltip"),
                 color: getStatusBar(task, config, "color"),
+                filePattern: getStatusBar(task, config, "filePattern"),
             }
         }
     }
@@ -175,8 +192,8 @@ function loadTasks(context) {
             statusBar.text = info.label || task.name;
             statusBar.tooltip = info.tooltip || task.detail;
             statusBar.color = convertColor(info.color);
+            statusBar.filePattern = info.filePattern;
             statusBar.command = command;
-            statusBar.show();
             statusBarArray.push(statusBar);
             context.subscriptions.push(statusBar);
             if (!(command in commandMap)) {
@@ -186,6 +203,8 @@ function loadTasks(context) {
             }
             commandMap[command] = task;
         }
+    }).then(() => {
+        syncStatusBarItemsWithActiveEditor();
     });
 }
 
@@ -195,6 +214,9 @@ function activate(context) {
     }));
     context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders(() => {
         loadTasks(context);
+    }));
+    context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(() => {
+        syncStatusBarItemsWithActiveEditor();
     }));
     loadTasks(context);
 }
