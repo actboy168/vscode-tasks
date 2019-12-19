@@ -183,9 +183,12 @@ function loadTasks(context) {
 
     vscode.tasks.fetchTasks().then((tasks) => {
         for (const task of tasks) {
+            if (task.source != "Workspace") {
+                continue;
+            }
             let taskId = task.name + ',' + getTaskId(task);
-            let info = statusBarInfo[taskId]
-            if (task.source != "Workspace" || !info || info.hide) {
+            let info = statusBarInfo[taskId] || {}
+            if (info.hide) {
                 continue;
             }
             let statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 50);
