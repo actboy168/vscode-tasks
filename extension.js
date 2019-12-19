@@ -84,10 +84,21 @@ function computeTaskExecutionId(values) {
 	return id;
 }
 
+function computeIdForNpm(task, config, name) {
+    let script = getValue(task, config, "script");
+    if (typeof script != "string") {
+        script = "";
+    }
+    return name+",vscode.npm.script,"+script+",type,npm,";
+}
+
 function computeId(task, config) {
-    const props = [];
     const name    = "label" in task ? task.label : task.taskName;
     const type    = getValue(task, config, "type");
+    if (type == "npm") {
+        return computeIdForNpm(task, config, name);
+    }
+    const props = [];
     const command = getValue(task, config, "command");
     const args    = getValue(task, config, "args");
     if (typeof name == "string") {
@@ -125,6 +136,13 @@ function computeId(task, config) {
         }
     }
     return computeTaskExecutionId(props);
+}
+
+function getTaskId(task) {
+    if (task.definition.type == "npm") {
+        return task._id;
+    }
+    return task.definition.id;
 }
 
 function convertColor(color) {
@@ -165,7 +183,7 @@ function loadTasks(context) {
 
     vscode.tasks.fetchTasks().then((tasks) => {
         for (const task of tasks) {
-            let taskId = task.name + ',' + task.definition.id;
+            let taskId = task.name + ',' + getTaskId(task);
             let info = statusBarInfo[taskId]
             if (task.source != "Workspace" || !info || info.hide) {
                 continue;
