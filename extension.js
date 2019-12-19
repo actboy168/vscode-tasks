@@ -3,6 +3,7 @@ const os = require('os');
 
 var statusBarArray = [];
 var commandMap = {};
+var outputChannel;
 
 function deactivate(context) {
     statusBarArray.forEach(i => {
@@ -157,6 +158,26 @@ function convertColor(color) {
     return undefined;
 }
 
+function syncStatusBarItemsWithActiveEditor() {
+    for (let statusBar of statusBarArray) {
+        if (!statusBar) {
+            continue;
+        }
+        statusBar.hide();
+        let currentFilePath = vscode.window.activeTextEditor && vscode.window.activeTextEditor.document.fileName,
+            filePattern = statusBar.filePattern,
+            showStatusBarItem = false;
+        try {
+            showStatusBarItem = !filePattern || (currentFilePath && new RegExp(statusBar.filePattern).test(currentFilePath));
+        } catch (error) {
+            outputChannel.appendLine(`Error validating status bar item '${statusBar.text}' filePattern for active file '${currentFilePath}'. ${error.name}: ${error.message}`);
+        }
+        if (showStatusBarItem) {
+            statusBar.show();
+        }
+    }
+}
+
 function loadTasks(context) {
     deactivate(context)
     if (vscode.workspace.workspaceFolders === undefined) {
@@ -177,6 +198,7 @@ function loadTasks(context) {
                 label: getStatusBar(task, config, "label"),
                 tooltip: getStatusBar(task, config, "tooltip"),
                 color: getStatusBar(task, config, "color"),
+                filePattern: getStatusBar(task, config, "filePattern"),
             }
         }
     }
@@ -196,8 +218,8 @@ function loadTasks(context) {
             statusBar.text = info.label || task.name;
             statusBar.tooltip = info.tooltip || task.detail;
             statusBar.color = convertColor(info.color);
+            statusBar.filePattern = info.filePattern;
             statusBar.command = command;
-            statusBar.show();
             statusBarArray.push(statusBar);
             context.subscriptions.push(statusBar);
             if (!(command in commandMap)) {
@@ -207,15 +229,21 @@ function loadTasks(context) {
             }
             commandMap[command] = task;
         }
+    }).then(() => {
+        syncStatusBarItemsWithActiveEditor();
     });
 }
 
 function activate(context) {
+    outputChannel = vscode.window.createOutputChannel("VSCode Tasks");
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(() => {
         loadTasks(context);
     }));
     context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders(() => {
         loadTasks(context);
+    }));
+    context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(() => {
+        syncStatusBarItemsWithActiveEditor();
     }));
     loadTasks(context);
 }

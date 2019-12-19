@@ -33,6 +33,11 @@
                                         "type": "string",
                                         "default": "#FFF",
                                         "description": "Provided by extension:tasks.\nSet the foreground color of the statusbar.\nhttps://code.visualstudio.com/api/references/theme-color"
+                                    },
+                                    "filePattern": {
+                                        "type": "string",
+                                        "default": "file pattern of applicable files for statusbar",
+                                        "description": "Provided by extension:tasks.\nSet the active editor file pattern for which the statusbar is displayed.\nLeave blank to have always displayed."
                                     }
                                 }
                             }
