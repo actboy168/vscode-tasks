@@ -224,7 +224,9 @@ function loadTasks(context) {
             context.subscriptions.push(statusBar);
             if (!(command in commandMap)) {
                 context.subscriptions.push(vscode.commands.registerCommand(command, () => {
-                    vscode.tasks.executeTask(commandMap[command]);
+                    vscode.tasks.executeTask(commandMap[command]).catch((e)=>{
+                        console.error(e)
+                    });
                 }));
             }
             commandMap[command] = task;
