@@ -38,6 +38,11 @@
                                         "type": "string",
                                         "default": "file pattern of applicable files for statusbar",
                                         "description": "Provided by extension:tasks.\nSet the active editor file pattern for which the statusbar is displayed.\nLeave blank to have always displayed."
+                                    },
+                                    "position": {
+                                        "type": "integer",
+                                        "default": 0,
+                                        "description": "Provided by extension:tasks.\nUse this to manually set the order of tasks in the statusbar."
                                     }
                                 }
                             }
