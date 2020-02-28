@@ -2,7 +2,7 @@
     "name": "tasks",
     "displayName": "Tasks",
     "description": "Load VSCode Tasks into Status Bar.",
-    "version": "0.3.6",
+    "version": "0.3.7",
     "publisher": "actboy168",
     "repository": {
         "type": "git",
@@ -27,12 +27,10 @@
     ],
     "main": "./extension.js",
     "contributes": {
-        "jsonValidation": [
-            {
-                "fileMatch": "tasks.json",
-                "url": "./jshintrc.tasks.json"
-            }
-        ],
+        "jsonValidation": [{
+            "fileMatch": "tasks.json",
+            "url": "./jshintrc.tasks.json"
+        }],
         "configuration": {
             "properties": {
                 "tasks.default.statusbar.hide": {
