@@ -78,11 +78,11 @@ function getStatusBar(task, global, key) {
 }
 
 function computeTaskExecutionId(values) {
-	let id = '';
-	for (let i = 0; i < values.length; i++) {
-		id += values[i].replace(/,/g, ',,') + ',';
-	}
-	return id;
+    let id = '';
+    for (let i = 0; i < values.length; i++) {
+        id += values[i].replace(/,/g, ',,') + ',';
+    }
+    return id;
 }
 
 function computeIdForNpm(task, config, name) {
@@ -90,18 +90,18 @@ function computeIdForNpm(task, config, name) {
     if (typeof script != "string") {
         script = "";
     }
-    return name+",vscode.npm.script,"+script+",type,npm,";
+    return name + ",vscode.npm.script," + script + ",type,npm,";
 }
 
 function computeId(task, config) {
-    const name    = "label" in task ? task.label : task.taskName;
-    const type    = getValue(task, config, "type");
+    const name = "label" in task ? task.label : task.taskName;
+    const type = getValue(task, config, "type");
     if (type == "npm") {
         return computeIdForNpm(task, config, name);
     }
     const props = [];
     const command = getValue(task, config, "command");
-    const args    = getValue(task, config, "args");
+    const args = getValue(task, config, "args");
     if (typeof name == "string") {
         props.push(name);
     }
@@ -148,7 +148,7 @@ function getTaskId(task) {
 
 function convertColor(color) {
     if (typeof color == "string") {
-        if (color.slice(0,1) === "#") {
+        if (color.slice(0, 1) === "#") {
             return info.color;
         }
         else {
@@ -199,15 +199,18 @@ function loadTasks(context) {
                 tooltip: getStatusBar(task, config, "tooltip"),
                 color: getStatusBar(task, config, "color"),
                 filePattern: getStatusBar(task, config, "filePattern"),
+                position: getStatusBar(task, config, "position")
             }
         }
     }
 
     vscode.tasks.fetchTasks().then((tasks) => {
-        for (const task of tasks) {
-            if (task.source != "Workspace") {
-                continue;
-            }
+        let sortedTasks = tasks.filter(task => task.source == "Workspace").sort((task1, task2) => {
+            let a = statusBarInfo[task1.name + ',' + getTaskId(task1)].position || 0
+            let b = statusBarInfo[task2.name + ',' + getTaskId(task2)].position || 0
+            return a - b
+        })
+        for (const task of sortedTasks) {
             let taskId = task.name + ',' + getTaskId(task);
             let info = statusBarInfo[taskId] || {}
             if (info.hide) {
@@ -224,7 +227,7 @@ function loadTasks(context) {
             context.subscriptions.push(statusBar);
             if (!(command in commandMap)) {
                 context.subscriptions.push(vscode.commands.registerCommand(command, () => {
-                    vscode.tasks.executeTask(commandMap[command]).catch((e)=>{
+                    vscode.tasks.executeTask(commandMap[command]).catch((e) => {
                         console.error(e)
                     });
                 }));
