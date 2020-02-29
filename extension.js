@@ -184,55 +184,55 @@ function loadTasks(context) {
         return;
     }
 
-    let statusBarInfo = {}
-    let statusBarIndex = 0;
-    for (const workspaceFolder of vscode.workspace.workspaceFolders) {
-        const config = vscode.workspace.getConfiguration('tasks', workspaceFolder.uri);
-        if (!config || !Array.isArray(config.tasks)) {
-            continue;
-        }
-        for (const task of config.tasks) {
-            let taskId = computeId(task, config);
-            statusBarInfo[taskId] = {
-                hide: getStatusBar(task, config, "hide"),
-                label: getStatusBar(task, config, "label"),
-                tooltip: getStatusBar(task, config, "tooltip"),
-                color: getStatusBar(task, config, "color"),
-                filePattern: getStatusBar(task, config, "filePattern"),
-            }
-        }
-    }
-
     vscode.tasks.fetchTasks().then((tasks) => {
+        let taskMap = {}
+        let statusBarIndex = 0;
         for (const task of tasks) {
             if (task.source != "Workspace") {
                 continue;
             }
             let taskId = task.name + ',' + getTaskId(task);
-            let info = statusBarInfo[taskId] || {}
-            if (info.hide) {
+            taskMap[taskId] = task;
+        }
+        for (const workspaceFolder of vscode.workspace.workspaceFolders) {
+            const config = vscode.workspace.getConfiguration('tasks', workspaceFolder.uri);
+            if (!config || !Array.isArray(config.tasks)) {
                 continue;
             }
-            let statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 50);
-            let command = "actboy168.task." + statusBarIndex++;
-            statusBar.text = info.label || task.name;
-            statusBar.tooltip = info.tooltip || task.detail;
-            statusBar.color = convertColor(info.color);
-            statusBar.filePattern = info.filePattern;
-            statusBar.command = command;
-            statusBarArray.push(statusBar);
-            context.subscriptions.push(statusBar);
-            if (!(command in commandMap)) {
-                context.subscriptions.push(vscode.commands.registerCommand(command, () => {
-                    vscode.tasks.executeTask(commandMap[command]).catch((e)=>{
-                        console.error(e)
-                    });
-                }));
+            for (const taskCfg of config.tasks) {
+                let taskId = computeId(taskCfg, config);
+                let task = taskMap[taskId];
+                if (!task) {
+                    continue;
+                }
+                let hide = getStatusBar(taskCfg, config, "hide");
+                if (hide) {
+                    continue;
+                }
+                let label = getStatusBar(taskCfg, config, "label");
+                let tooltip = getStatusBar(taskCfg, config, "tooltip");
+                let color = getStatusBar(taskCfg, config, "color");
+                let filePattern = getStatusBar(taskCfg, config, "filePattern");
+                let statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 50);
+                let command = "actboy168.task." + statusBarIndex++;
+                statusBar.text = label || task.name;
+                statusBar.tooltip = tooltip || task.detail;
+                statusBar.color = convertColor(color);
+                statusBar.filePattern = filePattern;
+                statusBar.command = command;
+                statusBarArray.push(statusBar);
+                context.subscriptions.push(statusBar);
+                if (!(command in commandMap)) {
+                    context.subscriptions.push(vscode.commands.registerCommand(command, () => {
+                        vscode.tasks.executeTask(commandMap[command]).catch((e)=>{
+                            console.error(e)
+                        });
+                    }));
+                }
+                commandMap[command] = task;
             }
-            commandMap[command] = task;
+            syncStatusBarItemsWithActiveEditor();
         }
-    }).then(() => {
-        syncStatusBarItemsWithActiveEditor();
     });
 }
 
