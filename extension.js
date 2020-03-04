@@ -3,6 +3,7 @@ const os = require('os');
 
 var statusBarArray = [];
 var commandMap = {};
+var taskMap = {};
 var outputChannel;
 
 function deactivate(context) {
@@ -185,7 +186,7 @@ function loadTasks(context) {
     }
 
     vscode.tasks.fetchTasks().then((tasks) => {
-        let taskMap = {}
+        taskMap = {};
         let statusBarIndex = 0;
         for (const task of tasks) {
             if (task.source != "Workspace") {
