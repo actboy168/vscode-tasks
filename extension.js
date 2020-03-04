@@ -2,6 +2,7 @@ const vscode = require('vscode');
 const os = require('os');
 
 var statusBarArray = [];
+var statusBarIndex = 0;
 var commandMap = {};
 var taskMap = {};
 var outputChannel;
@@ -179,6 +180,42 @@ function syncStatusBarItemsWithActiveEditor() {
     }
 }
 
+function createTasks(context, config) {
+    for (const taskCfg of config.tasks) {
+        let taskId = computeId(taskCfg, config);
+        let task = taskMap[taskId];
+        if (!task) {
+            continue;
+        }
+        taskMap[taskId] = undefined;
+        let hide = getStatusBar(taskCfg, config, "hide");
+        if (hide) {
+            continue;
+        }
+        let label = getStatusBar(taskCfg, config, "label");
+        let tooltip = getStatusBar(taskCfg, config, "tooltip");
+        let color = getStatusBar(taskCfg, config, "color");
+        let filePattern = getStatusBar(taskCfg, config, "filePattern");
+        let statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 50);
+        let command = "actboy168.task." + statusBarIndex++;
+        statusBar.text = label || task.name;
+        statusBar.tooltip = tooltip || task.detail;
+        statusBar.color = convertColor(color);
+        statusBar.filePattern = filePattern;
+        statusBar.command = command;
+        statusBarArray.push(statusBar);
+        context.subscriptions.push(statusBar);
+        if (!(command in commandMap)) {
+            context.subscriptions.push(vscode.commands.registerCommand(command, () => {
+                vscode.tasks.executeTask(commandMap[command]).catch((e)=>{
+                    console.error(e)
+                });
+            }));
+        }
+        commandMap[command] = task;
+    }
+}
+
 function loadTasks(context) {
     deactivate(context)
     if (vscode.workspace.workspaceFolders === undefined) {
@@ -187,7 +224,7 @@ function loadTasks(context) {
 
     vscode.tasks.fetchTasks().then((tasks) => {
         taskMap = {};
-        let statusBarIndex = 0;
+        statusBarIndex = 0;
         for (const task of tasks) {
             if (task.source != "Workspace") {
                 continue;
@@ -195,45 +232,29 @@ function loadTasks(context) {
             let taskId = task.name + ',' + getTaskId(task);
             taskMap[taskId] = task;
         }
-        for (const workspaceFolder of vscode.workspace.workspaceFolders) {
-            const config = vscode.workspace.getConfiguration('tasks', workspaceFolder.uri);
-            if (!config || !Array.isArray(config.tasks)) {
-                continue;
+        const configuration = vscode.workspace.getConfiguration();
+        if (configuration) {
+            const tasksJson = configuration.inspect('tasks');
+            if (tasksJson) {
+                const config = tasksJson.globalValue;
+                if (config && Array.isArray(config.tasks)) {
+                    createTasks(context, config);
+                }
             }
-            for (const taskCfg of config.tasks) {
-                let taskId = computeId(taskCfg, config);
-                let task = taskMap[taskId];
-                if (!task) {
-                    continue;
-                }
-                let hide = getStatusBar(taskCfg, config, "hide");
-                if (hide) {
-                    continue;
-                }
-                let label = getStatusBar(taskCfg, config, "label");
-                let tooltip = getStatusBar(taskCfg, config, "tooltip");
-                let color = getStatusBar(taskCfg, config, "color");
-                let filePattern = getStatusBar(taskCfg, config, "filePattern");
-                let statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 50);
-                let command = "actboy168.task." + statusBarIndex++;
-                statusBar.text = label || task.name;
-                statusBar.tooltip = tooltip || task.detail;
-                statusBar.color = convertColor(color);
-                statusBar.filePattern = filePattern;
-                statusBar.command = command;
-                statusBarArray.push(statusBar);
-                context.subscriptions.push(statusBar);
-                if (!(command in commandMap)) {
-                    context.subscriptions.push(vscode.commands.registerCommand(command, () => {
-                        vscode.tasks.executeTask(commandMap[command]).catch((e)=>{
-                            console.error(e)
-                        });
-                    }));
-                }
-                commandMap[command] = task;
-            }
-            syncStatusBarItemsWithActiveEditor();
         }
+        for (const workspaceFolder of vscode.workspace.workspaceFolders) {
+            const configuration = vscode.workspace.getConfiguration(null, workspaceFolder.uri);
+            if (configuration) {
+                const tasksJson = configuration.inspect('tasks');
+                if (tasksJson) {
+                    const config = tasksJson.workspaceFolderValue;
+                    if (config && Array.isArray(config.tasks)) {
+                        createTasks(context, config);
+                    }
+                }
+            }
+        }
+        syncStatusBarItemsWithActiveEditor();
     });
 }
 
