@@ -92,6 +92,9 @@ function computeIdForNpm(task, config, name) {
     if (typeof script != "string") {
         script = "";
     }
+    if (typeof name != "string") {
+        name = script;
+    }
     return name+",vscode.npm.script,"+script+",type,npm,";
 }
 
