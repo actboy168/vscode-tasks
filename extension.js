@@ -264,9 +264,7 @@ function loadTasks(context) {
 function activate(context) {
     outputChannel = vscode.window.createOutputChannel("VSCode Tasks");
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((e) => {
-        if (e.affectsConfiguration('tasks')) {
-            loadTasks(context);
-        }
+        loadTasks(context);
     }));
     context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders(() => {
         loadTasks(context);
