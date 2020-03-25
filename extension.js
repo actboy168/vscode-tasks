@@ -210,8 +210,8 @@ function createTasks(context, config) {
         context.subscriptions.push(statusBar);
         if (!(command in commandMap)) {
             context.subscriptions.push(vscode.commands.registerCommand(command, () => {
-                vscode.tasks.executeTask(commandMap[command]).catch((e)=>{
-                    console.error(e)
+                vscode.tasks.executeTask(commandMap[command]).catch((err)=>{
+                    vscode.window.showWarningMessage(err.message).then(_ => undefined);
                 });
             }));
         }
@@ -264,7 +264,7 @@ function loadTasks(context) {
 function activate(context) {
     outputChannel = vscode.window.createOutputChannel("VSCode Tasks");
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((e) => {
-        loadTasks(context);
+        //loadTasks(context);
     }));
     context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders(() => {
         loadTasks(context);
