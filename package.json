@@ -20,7 +20,7 @@
     ],
     "icon": "logo.png",
     "engines": {
-        "vscode": "^1.37.0"
+        "vscode": "^1.44.0"
     },
     "activationEvents": [
         "workspaceContains:.vscode/tasks.json"

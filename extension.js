@@ -2,10 +2,9 @@ const vscode = require('vscode');
 const os = require('os');
 
 var statusBarArray = [];
-var statusBarIndex = 0;
-var commandMap = {};
 var taskMap = {};
 var outputChannel;
+const RunTaskCommand = "actboy168.run-task"
 
 function deactivate(context) {
     statusBarArray.forEach(i => {
@@ -200,22 +199,16 @@ function createTasks(context, config) {
         let color = getStatusBar(taskCfg, config, "color");
         let filePattern = getStatusBar(taskCfg, config, "filePattern");
         let statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 50);
-        let command = "actboy168.task." + statusBarIndex++;
         statusBar.text = label || task.name;
         statusBar.tooltip = tooltip || task.detail;
         statusBar.color = convertColor(color);
         statusBar.filePattern = filePattern;
-        statusBar.command = command;
+        statusBar.command = {
+            command: RunTaskCommand,
+            arguments: [task]
+        };
         statusBarArray.push(statusBar);
         context.subscriptions.push(statusBar);
-        if (!(command in commandMap)) {
-            context.subscriptions.push(vscode.commands.registerCommand(command, () => {
-                vscode.tasks.executeTask(commandMap[command]).catch((err)=>{
-                    vscode.window.showWarningMessage(err.message).then(_ => undefined);
-                });
-            }));
-        }
-        commandMap[command] = task;
     }
 }
 
@@ -227,7 +220,6 @@ function loadTasks(context) {
 
     vscode.tasks.fetchTasks().then((tasks) => {
         taskMap = {};
-        statusBarIndex = 0;
         for (const task of tasks) {
             if (task.source != "Workspace") {
                 continue;
@@ -263,8 +255,13 @@ function loadTasks(context) {
 
 function activate(context) {
     outputChannel = vscode.window.createOutputChannel("VSCode Tasks");
-    context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((e) => {
-        //loadTasks(context);
+    context.subscriptions.push(vscode.commands.registerCommand(RunTaskCommand, (task) => {
+        vscode.tasks.executeTask(task).catch((err)=>{
+            vscode.window.showWarningMessage(err.message).then(_ => undefined);
+        });
+    }));
+    context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(() => {
+        loadTasks(context);
     }));
     context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders(() => {
         loadTasks(context);
