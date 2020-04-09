@@ -153,7 +153,7 @@ function getTaskId(task) {
 function convertColor(color) {
     if (typeof color == "string") {
         if (color.slice(0,1) === "#") {
-            return info.color;
+            return color;
         }
         else {
             return vscode.ThemeColor(color);
