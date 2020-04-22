@@ -87,14 +87,46 @@ function computeTaskExecutionId(values) {
 }
 
 function computeIdForNpm(task, config, name) {
-    let script = getValue(task, config, "script");
-    if (typeof script != "string") {
-        script = "";
+    const props = [];
+    const script = getValue(task, config, "script");
+    const path = getValue(task, config, "path");
+    
+    if (typeof name == "string") {
+        props.push(name);
     }
-    if (typeof name != "string") {
-        name = script;
+    else if (typeof script == "string" && typeof path == "string") {
+        props.push(script + " - " + path.substr(0,path.length-1));
     }
-    return name+",vscode.npm.script,"+script+",type,npm,";
+    else if (typeof script == "string") {
+        props.push(script);
+    }
+    else {
+        props.push("");
+    }
+    let first = true;
+    if (typeof path == "string") {
+        if (first) {
+            props.push("vscode.npm.path");
+            first = false;
+        }
+        else {
+            props.push("path");
+        }
+        props.push(path);
+    }
+    if (typeof script == "string") {
+        if (first) {
+            props.push("vscode.npm.script");
+            first = false;
+        }
+        else {
+            props.push("script");
+        }
+        props.push(script);
+    }
+    props.push("type");
+    props.push("npm");
+    return computeTaskExecutionId(props);
 }
 
 function computeId(task, config) {
