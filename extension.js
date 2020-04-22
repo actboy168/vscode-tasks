@@ -187,9 +187,10 @@ function createTasks(context, config) {
         let taskId = computeId(taskCfg, config);
         let task = taskMap[taskId];
         if (!task) {
+            outputChannel.appendLine(`Not found task: ${taskId}`);
             continue;
         }
-        taskMap[taskId] = undefined;
+        delete taskMap[taskId];
         let hide = getStatusBar(taskCfg, config, "hide");
         if (hide) {
             continue;
@@ -248,6 +249,9 @@ function loadTasks(context) {
                     }
                 }
             }
+        }
+        for (const taskId in taskMap) {
+            outputChannel.appendLine(`No match task: ${taskId}`);
         }
         syncStatusBarItemsWithActiveEditor();
     });
