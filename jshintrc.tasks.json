@@ -12,32 +12,32 @@
                         "properties": {
                             "statusbar": {
                                 "type": "object",
-                                "description": "Provided by extension:tasks.\nSet the task to display in the statusbar.",
+                                "description": "Set the task to display in the statusbar.",
                                 "properties": {
                                     "hide": {
                                         "type": "boolean",
                                         "default": true,
-                                        "description": "Provided by extension:tasks.\nSet it as \"hide\"to hide the task on statusbar."
+                                        "description": "Set it as \"hide\"to hide the task on statusbar."
                                     },
                                     "label": {
                                         "type": "string",
                                         "default": "name for statusbar",
-                                        "description": "Provided by extension:tasks.\nSet the label of the statusbar.\nYou can embed icons in the text by leveraging the syntax: $(icon-name)\nhttps://octicons.github.com"
+                                        "description": "Set the label of the statusbar.\nYou can embed icons in the text by leveraging the syntax: $(icon-name)\nhttps://octicons.github.com"
                                     },
                                     "tooltip": {
                                         "type": "string",
                                         "default": "tooltip for statusbar",
-                                        "description": "Provided by extension:tasks.\nSet the tooltip of the statusbar."
+                                        "description": "Set the tooltip of the statusbar."
                                     },
                                     "color": {
                                         "type": "string",
                                         "default": "#FFF",
-                                        "description": "Provided by extension:tasks.\nSet the foreground color of the statusbar.\nhttps://code.visualstudio.com/api/references/theme-color"
+                                        "description": "Set the foreground color of the statusbar.\nhttps://code.visualstudio.com/api/references/theme-color"
                                     },
                                     "filePattern": {
                                         "type": "string",
                                         "default": "file pattern of applicable files for statusbar",
-                                        "description": "Provided by extension:tasks.\nSet the active editor file pattern for which the statusbar is displayed.\nLeave blank to have always displayed."
+                                        "description": "Set the active editor file pattern for which the statusbar is displayed.\nLeave blank to have always displayed."
                                     }
                                 }
                             }
