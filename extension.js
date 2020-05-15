@@ -292,6 +292,9 @@ function loadTasks(context) {
 function activate(context) {
     outputChannel = vscode.window.createOutputChannel("VSCode Tasks");
     context.subscriptions.push(vscode.commands.registerCommand(RunTaskCommand, (task) => {
+        if (task === undefined) {
+            return;
+        }
         vscode.tasks.executeTask(task).catch((err)=>{
             vscode.window.showWarningMessage(err.message).then(_ => undefined);
         });
