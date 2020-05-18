@@ -289,15 +289,33 @@ function loadTasks(context) {
     });
 }
 
+function runTask(task) {
+    vscode.tasks.executeTask(task).catch((err)=>{
+        vscode.window.showWarningMessage(err.message).then(_ => undefined);
+    });
+}
+
 function activate(context) {
     outputChannel = vscode.window.createOutputChannel("VSCode Tasks");
-    context.subscriptions.push(vscode.commands.registerCommand(RunTaskCommand, (task) => {
-        if (task === undefined) {
-            return;
+    context.subscriptions.push(vscode.commands.registerCommand(RunTaskCommand, (args) => {
+        switch (typeof args) {
+            case "number":
+                const statusBar = statusBarArray[args-1];
+                if (statusBar) {
+                    const task = statusBar.command.arguments[0];
+                    runTask(task);
+                }
+                else {
+                    outputChannel.appendLine(`Not found task #${args}`);
+                }
+                break;
+            case "object":
+                runTask(args);
+                break;
+            default:
+                outputChannel.appendLine(`Invalid task: ${args}`);
+                break;
         }
-        vscode.tasks.executeTask(task).catch((err)=>{
-            vscode.window.showWarningMessage(err.message).then(_ => undefined);
-        });
     }));
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(() => {
         loadTasks(context);
