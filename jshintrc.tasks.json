@@ -1,5 +1,39 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+        "statusbar": {
+            "type": "object",
+            "description": "Set the task to display in the statusbar.",
+            "properties": {
+                "hide": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Controls whether this task should be displayed in the statusbar."
+                },
+                "label": {
+                    "type": "string",
+                    "default": "label for statusbar",
+                    "description": "Set the label of the statusbar.\nYou can embed icons in the text by leveraging the syntax:\nhttps://code.visualstudio.com/api/references/icons-in-labels\nAbout octicons:\nhttps://octicons.github.com"
+                },
+                "tooltip": {
+                    "type": "string",
+                    "default": "tooltip for statusbar",
+                    "description": "Set the tooltip of the statusbar."
+                },
+                "color": {
+                    "type": "string",
+                    "default": "#FFF",
+                    "format": "color",
+                    "description": "Set the foreground color of the statusbar.\nhttps://code.visualstudio.com/api/references/theme-color"
+                },
+                "filePattern": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Set the active editor file pattern for which the statusbar is displayed.\nLeave blank to have always displayed."
+                }
+            }
+        }
+    },
     "type": "object",
     "properties": {
         "tasks": {
@@ -10,38 +44,7 @@
                     "options": {
                         "type": "object",
                         "properties": {
-                            "statusbar": {
-                                "type": "object",
-                                "description": "Set the task to display in the statusbar.",
-                                "properties": {
-                                    "hide": {
-                                        "type": "boolean",
-                                        "default": true,
-                                        "description": "Controls whether this task should be displayed in the statusbar."
-                                    },
-                                    "label": {
-                                        "type": "string",
-                                        "default": "label for statusbar",
-                                        "description": "Set the label of the statusbar.\nYou can embed icons in the text by leveraging the syntax:\nhttps://code.visualstudio.com/api/references/icons-in-labels\nAbout octicons:\nhttps://octicons.github.com"
-                                    },
-                                    "tooltip": {
-                                        "type": "string",
-                                        "default": "tooltip for statusbar",
-                                        "description": "Set the tooltip of the statusbar."
-                                    },
-                                    "color": {
-                                        "type": "string",
-                                        "default": "#FFF",
-                                        "format": "color",
-                                        "description": "Set the foreground color of the statusbar.\nhttps://code.visualstudio.com/api/references/theme-color"
-                                    },
-                                    "filePattern": {
-                                        "type": "string",
-                                        "default": "",
-                                        "description": "Set the active editor file pattern for which the statusbar is displayed.\nLeave blank to have always displayed."
-                                    }
-                                }
-                            }
+                            "statusbar": {"$ref": "#/definitions/statusbar"}
                         }
                     }
                 }
