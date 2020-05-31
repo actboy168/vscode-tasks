@@ -17,7 +17,7 @@
                                     "hide": {
                                         "type": "boolean",
                                         "default": true,
-                                        "description": "Set it as \"hide\"to hide the task on statusbar."
+                                        "description": "Controls whether this task should be displayed in the statusbar."
                                     },
                                     "label": {
                                         "type": "string",
