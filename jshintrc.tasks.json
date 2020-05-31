@@ -21,8 +21,8 @@
                                     },
                                     "label": {
                                         "type": "string",
-                                        "default": "name for statusbar",
-                                        "description": "Set the label of the statusbar.\nYou can embed icons in the text by leveraging the syntax: $(icon-name)\nhttps://octicons.github.com"
+                                        "default": "label for statusbar",
+                                        "description": "Set the label of the statusbar.\nYou can embed icons in the text by leveraging the syntax:\nhttps://code.visualstudio.com/api/references/icons-in-labels\nAbout octicons:\nhttps://octicons.github.com"
                                     },
                                     "tooltip": {
                                         "type": "string",
