@@ -36,7 +36,7 @@
                                     },
                                     "filePattern": {
                                         "type": "string",
-                                        "default": "file pattern of applicable files for statusbar",
+                                        "default": "",
                                         "description": "Set the active editor file pattern for which the statusbar is displayed.\nLeave blank to have always displayed."
                                     }
                                 }
