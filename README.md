@@ -2,7 +2,7 @@
 This extension loads VSCode tasks into status bar.
 
 ## Options
-You can hide some tasks with the following options directly in tasks.json:
+You can hide some tasks with the following options directly in `tasks.json`:
 
 ```json
 "label": "Test",
@@ -13,13 +13,46 @@ You can hide some tasks with the following options directly in tasks.json:
 }
 ```
 
-You can change the name of the task displayed on the status bar with the following options directly in tasks.json:
+You can set the label of the statusbar:
 
 ```json
 "label": "Test",
 "options": {
   "statusbar": {
     "label" : "ts"
+  }
+}
+```
+
+You can embed icons in the text by leveraging the syntax: `$(icon-name)`. More details in [icons-in-labels](https://code.visualstudio.com/api/references/icons-in-labels) and [octicons](https://octicons.github.com)
+
+```json
+"label": "Test",
+"options": {
+  "statusbar": {
+    "label" : "$(beaker) ts"
+  }
+}
+```
+
+You can set the foreground color of the statusbar:
+
+```json
+"label": "Test",
+"options": {
+  "statusbar": {
+    "color" : "#22C1D6"
+  }
+}
+```
+
+You can set the tooltip of the statusbar:
+
+```json
+"label": "Test",
+"options": {
+  "statusbar": {
+    "tooltip" : "my test"
   }
 }
 ```
