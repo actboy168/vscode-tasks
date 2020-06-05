@@ -26,14 +26,14 @@ function getPlatKV(t) {
 }
 
 function getValue(t, g, k) {
-    let pt = getPlatKV(t);
+    const pt = getPlatKV(t);
     if (typeof pt == 'object' && k in pt) {
         return pt[k];
     }
     if (k in t) {
         return t[k];
     }
-    let gt = getPlatKV(g);
+    const gt = getPlatKV(g);
     if (typeof gt == 'object' && k in gt) {
         return gt[k];
     }
@@ -52,9 +52,9 @@ function getStatusBarValue(tbl, key) {
 }
 
 function getStatusBarPlat(tbl, key) {
-    let plat = getPlatKV(tbl);
+    const plat = getPlatKV(tbl);
     if (typeof plat == "object") {
-        let res = getStatusBarValue(plat, key);
+        const res = getStatusBarValue(plat, key);
         if (res !== undefined) {
             return res;
         }
@@ -148,8 +148,8 @@ function computeId(task, config) {
         props.push(command);
     }
     else if (Array.isArray(command)) {
-        var cmds;
-        for (var c of command) {
+        let cmds;
+        for (const c of command) {
             if (typeof c == "string") {
                 if (cmds === undefined) {
                     cmds = c;
@@ -164,7 +164,7 @@ function computeId(task, config) {
         }
     }
     if (Array.isArray(args) && args.length > 0) {
-        for (var arg of args) {
+        for (const arg of args) {
             if (typeof arg == "string") {
                 props.push(arg);
             } else if (typeof arg == "object") {
@@ -195,14 +195,14 @@ function convertColor(color) {
 }
 
 function syncStatusBarItemsWithActiveEditor() {
-    for (let statusBar of statusBarArray) {
+    for (const statusBar of statusBarArray) {
         if (!statusBar) {
             continue;
         }
         statusBar.hide();
-        let currentFilePath = vscode.window.activeTextEditor && vscode.window.activeTextEditor.document.fileName,
-            filePattern = statusBar.filePattern,
-            showStatusBarItem = false;
+        const currentFilePath = vscode.window.activeTextEditor && vscode.window.activeTextEditor.document.fileName;
+        const filePattern = statusBar.filePattern;
+        let showStatusBarItem = false;
         try {
             showStatusBarItem = !filePattern || (currentFilePath && new RegExp(statusBar.filePattern).test(currentFilePath));
         } catch (error) {
@@ -216,22 +216,22 @@ function syncStatusBarItemsWithActiveEditor() {
 
 function createTasks(context, config) {
     for (const taskCfg of config.tasks) {
-        let taskId = computeId(taskCfg, config);
-        let task = taskMap[taskId];
+        const taskId = computeId(taskCfg, config);
+        const task = taskMap[taskId];
         if (!task) {
             outputChannel.appendLine(`Not found task: ${taskId}`);
             continue;
         }
         delete taskMap[taskId];
-        let hide = getStatusBar(taskCfg, config, "hide");
+        const hide = getStatusBar(taskCfg, config, "hide");
         if (hide) {
             continue;
         }
-        let label = getStatusBar(taskCfg, config, "label");
-        let tooltip = getStatusBar(taskCfg, config, "tooltip");
-        let color = getStatusBar(taskCfg, config, "color");
-        let filePattern = getStatusBar(taskCfg, config, "filePattern");
-        let statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 50);
+        const label = getStatusBar(taskCfg, config, "label");
+        const tooltip = getStatusBar(taskCfg, config, "tooltip");
+        const color = getStatusBar(taskCfg, config, "color");
+        const filePattern = getStatusBar(taskCfg, config, "filePattern");
+        const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 50);
         statusBar.text = label || task.name;
         statusBar.tooltip = tooltip || task.detail;
         statusBar.color = convertColor(color);
@@ -257,7 +257,7 @@ function loadTasks(context) {
             if (task.source != "Workspace") {
                 continue;
             }
-            let taskId = task.name + ',' + getTaskId(task);
+            const taskId = task.name + ',' + getTaskId(task);
             taskMap[taskId] = task;
         }
         const configuration = vscode.workspace.getConfiguration();
