@@ -35,9 +35,13 @@
         ],
         "configuration": {
             "properties": {
-                "tasks.default.statusbar.hide": {
+                "tasks.statusbar.default.hide": {
                     "type": "boolean",
                     "default": false
+                },
+                "tasks.statusbar.default.color": {
+                    "type": "string",
+                    "default": ""
                 },
                 "tasks.statusbar.limit": {
                     "type": "integer",
@@ -46,6 +50,10 @@
                 "tasks.statusbar.select.label": {
                     "type": "string",
                     "default": "..."
+                },
+                "tasks.statusbar.select.color": {
+                    "type": "string",
+                    "default": ""
                 }
             }
         }

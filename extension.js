@@ -70,7 +70,7 @@ function getStatusBar(task, global, key) {
     if (res !== undefined) {
         return res;
     }
-    const settings = vscode.workspace.getConfiguration("tasks.default.statusbar");
+    const settings = vscode.workspace.getConfiguration("tasks.statusbar.default");
     if (settings !== undefined) {
         return settings[key];
     }
@@ -234,6 +234,7 @@ function createTaskStatusBar(context, info) {
 function createSelectStatusBar(context, settings) {
     const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 50);
     statusBar.text = settings.label || "...";
+    statusBar.color = convertColor(settings.color);
     statusBar.command = "workbench.action.tasks.runTask";
     statusBarArray.push(statusBar);
     context.subscriptions.push(statusBar);
