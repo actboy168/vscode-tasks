@@ -2,7 +2,6 @@ const vscode = require('vscode');
 const os = require('os');
 
 var statusBarArray = [];
-var taskMap = {};
 var outputChannel;
 const RunTaskCommand = "actboy168.run-task"
 
@@ -79,23 +78,23 @@ function getStatusBar(task, global, key) {
 }
 
 function computeTaskExecutionId(values) {
-	let id = '';
-	for (let i = 0; i < values.length; i++) {
-		id += values[i].replace(/,/g, ',,') + ',';
-	}
-	return id;
+    let id = '';
+    for (let i = 0; i < values.length; i++) {
+        id += values[i].replace(/,/g, ',,') + ',';
+    }
+    return id;
 }
 
 function computeIdForNpm(task, config, name) {
     const props = [];
     const script = getValue(task, config, "script");
     const path = getValue(task, config, "path");
-    
+
     if (typeof name == "string") {
         props.push(name);
     }
     else if (typeof script == "string" && typeof path == "string") {
-        props.push(script + " - " + path.substr(0,path.length-1));
+        props.push(script + " - " + path.substr(0, path.length - 1));
     }
     else if (typeof script == "string") {
         props.push(script);
@@ -130,14 +129,14 @@ function computeIdForNpm(task, config, name) {
 }
 
 function computeId(task, config) {
-    const name    = "label" in task ? task.label : task.taskName;
-    const type    = getValue(task, config, "type");
+    const name = "label" in task ? task.label : task.taskName;
+    const type = getValue(task, config, "type");
     if (type == "npm") {
         return computeIdForNpm(task, config, name);
     }
     const props = [];
     const command = getValue(task, config, "command");
-    const args    = getValue(task, config, "args");
+    const args = getValue(task, config, "args");
     if (typeof name == "string") {
         props.push(name);
     }
@@ -184,7 +183,7 @@ function getTaskId(task) {
 
 function convertColor(color) {
     if (typeof color == "string") {
-        if (color.slice(0,1) === "#") {
+        if (color.slice(0, 1) === "#") {
             return color;
         }
         else {
@@ -214,7 +213,25 @@ function syncStatusBarItemsWithActiveEditor() {
     }
 }
 
-function createTasks(context, config) {
+function createTask(context, info) {
+    const task = info.task;
+    const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 50);
+    statusBar.text = info.label || task.name;
+    statusBar.tooltip = info.tooltip || task.detail;
+    statusBar.color = convertColor(info.color);
+    statusBar.filePattern = info.filePattern;
+    statusBar.command = {
+        command: RunTaskCommand,
+        arguments: [task]
+    };
+    statusBarArray.push(statusBar);
+    context.subscriptions.push(statusBar);
+}
+
+function matchTasks(taskInfo, taskMap, config) {
+    if (typeof config != "object" || !Array.isArray(config.tasks)) {
+        return;
+    }
     for (const taskCfg of config.tasks) {
         const taskId = computeId(taskCfg, config);
         const task = taskMap[taskId];
@@ -227,21 +244,13 @@ function createTasks(context, config) {
         if (hide) {
             continue;
         }
-        const label = getStatusBar(taskCfg, config, "label");
-        const tooltip = getStatusBar(taskCfg, config, "tooltip");
-        const color = getStatusBar(taskCfg, config, "color");
-        const filePattern = getStatusBar(taskCfg, config, "filePattern");
-        const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 50);
-        statusBar.text = label || task.name;
-        statusBar.tooltip = tooltip || task.detail;
-        statusBar.color = convertColor(color);
-        statusBar.filePattern = filePattern;
-        statusBar.command = {
-            command: RunTaskCommand,
-            arguments: [task]
-        };
-        statusBarArray.push(statusBar);
-        context.subscriptions.push(statusBar);
+        taskInfo.push({
+            task: task,
+            label: getStatusBar(taskCfg, config, "label"),
+            tooltip: getStatusBar(taskCfg, config, "tooltip"),
+            color: getStatusBar(taskCfg, config, "color"),
+            filePattern: getStatusBar(taskCfg, config, "filePattern"),
+        });
     }
 }
 
@@ -252,7 +261,8 @@ function loadTasks(context) {
     }
 
     vscode.tasks.fetchTasks().then((tasks) => {
-        taskMap = {};
+        let taskInfo = [];
+        let taskMap = {};
         for (const task of tasks) {
             if (task.source != "Workspace") {
                 continue;
@@ -265,9 +275,7 @@ function loadTasks(context) {
             const tasksJson = configuration.inspect('tasks');
             if (tasksJson) {
                 const config = tasksJson.globalValue;
-                if (config && Array.isArray(config.tasks)) {
-                    createTasks(context, config);
-                }
+                matchTasks(taskInfo, taskMap, config);
             }
         }
         for (const workspaceFolder of vscode.workspace.workspaceFolders) {
@@ -276,21 +284,22 @@ function loadTasks(context) {
                 const tasksJson = configuration.inspect('tasks');
                 if (tasksJson) {
                     const config = tasksJson.workspaceFolderValue;
-                    if (config && Array.isArray(config.tasks)) {
-                        createTasks(context, config);
-                    }
+                    matchTasks(taskInfo, taskMap, config);
                 }
             }
         }
         for (const taskId in taskMap) {
             outputChannel.appendLine(`No match task: ${taskId}`);
         }
+        for (const info of taskInfo) {
+            createTask(context, info);
+        }
         syncStatusBarItemsWithActiveEditor();
     });
 }
 
 function runTask(task) {
-    vscode.tasks.executeTask(task).catch((err)=>{
+    vscode.tasks.executeTask(task).catch((err) => {
         vscode.window.showWarningMessage(err.message).then(_ => undefined);
     });
 }
@@ -300,7 +309,7 @@ function activate(context) {
     context.subscriptions.push(vscode.commands.registerCommand(RunTaskCommand, (args) => {
         switch (typeof args) {
             case "number":
-                const statusBar = statusBarArray[args-1];
+                const statusBar = statusBarArray[args - 1];
                 if (statusBar) {
                     const task = statusBar.command.arguments[0];
                     runTask(task);
