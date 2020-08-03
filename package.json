@@ -38,6 +38,14 @@
                 "tasks.default.statusbar.hide": {
                     "type": "boolean",
                     "default": false
+                },
+                "tasks.statusbar.limit": {
+                    "type": "integer",
+                    "default": 6
+                },
+                "tasks.statusbar.select.label": {
+                    "type": "string",
+                    "default": "..."
                 }
             }
         }
