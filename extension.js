@@ -264,18 +264,16 @@ function loadTasks(context) {
         let taskInfo = [];
         let taskMap = {};
         for (const task of tasks) {
-            if (task.source != "Workspace") {
-                continue;
+            if (task.source == "Workspace") {
+                const taskId = task.name + ',' + getTaskId(task);
+                taskMap[taskId] = task;
             }
-            const taskId = task.name + ',' + getTaskId(task);
-            taskMap[taskId] = task;
         }
         const configuration = vscode.workspace.getConfiguration();
         if (configuration) {
             const tasksJson = configuration.inspect('tasks');
             if (tasksJson) {
-                const config = tasksJson.globalValue;
-                matchTasks(taskInfo, taskMap, config);
+                matchTasks(taskInfo, taskMap, tasksJson.globalValue);
             }
         }
         for (const workspaceFolder of vscode.workspace.workspaceFolders) {
@@ -283,8 +281,7 @@ function loadTasks(context) {
             if (configuration) {
                 const tasksJson = configuration.inspect('tasks');
                 if (tasksJson) {
-                    const config = tasksJson.workspaceFolderValue;
-                    matchTasks(taskInfo, taskMap, config);
+                    matchTasks(taskInfo, taskMap, tasksJson.workspaceFolderValue);
                 }
             }
         }
