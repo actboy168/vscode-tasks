@@ -140,34 +140,39 @@ function computeId(task, config) {
     if (typeof name == "string") {
         props.push(name);
     }
-    if (typeof type == "string") {
-        props.push(type);
+    if (command === undefined) {
+        props.push("$empty");
     }
-    if (typeof command == "string") {
-        props.push(command);
-    }
-    else if (Array.isArray(command)) {
-        let cmds;
-        for (const c of command) {
-            if (typeof c == "string") {
-                if (cmds === undefined) {
-                    cmds = c;
-                }
-                else {
-                    cmds += ' ' + c;
+    else {
+        if (typeof type == "string") {
+            props.push(type);
+        }
+        if (typeof command == "string") {
+            props.push(command);
+        }
+        else if (Array.isArray(command)) {
+            let cmds;
+            for (const c of command) {
+                if (typeof c == "string") {
+                    if (cmds === undefined) {
+                        cmds = c;
+                    }
+                    else {
+                        cmds += ' ' + c;
+                    }
                 }
             }
+            if (cmds !== undefined) {
+                props.push(cmds);
+            }
         }
-        if (cmds !== undefined) {
-            props.push(cmds);
-        }
-    }
-    if (Array.isArray(args) && args.length > 0) {
-        for (const arg of args) {
-            if (typeof arg == "string") {
-                props.push(arg);
-            } else if (typeof arg == "object") {
-                props.push(arg.value);
+        if (Array.isArray(args) && args.length > 0) {
+            for (const arg of args) {
+                if (typeof arg == "string") {
+                    props.push(arg);
+                } else if (typeof arg == "object") {
+                    props.push(arg.value);
+                }
             }
         }
     }
@@ -177,6 +182,9 @@ function computeId(task, config) {
 function getTaskId(task) {
     if (task.definition.type == "npm") {
         return task._id;
+    }
+    if (task.definition.type === "$empty") {
+        return "$empty,";
     }
     return task.definition.id;
 }
