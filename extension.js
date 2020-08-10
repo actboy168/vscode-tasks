@@ -2,6 +2,7 @@ const vscode = require('vscode');
 const os = require('os');
 
 var statusBarArray = [];
+var statusBarSelect;
 var outputChannel;
 const RunTaskCommand = "actboy168.run-task"
 
@@ -10,6 +11,10 @@ function deactivate(context) {
         i.dispose();
     });
     statusBarArray = [];
+    if (statusBarSelect) {
+        statusBarSelect.dispose();
+        statusBarSelect = undefined;
+    }
 }
 
 function getPlatKV(t) {
@@ -204,24 +209,32 @@ function convertColor(color) {
     return undefined;
 }
 
-function syncStatusBarItemsWithActiveEditor() {
+function needShowStatusBar(statusBar, currentFilePath) {
+    try {
+        return !statusBar.filePattern || (currentFilePath && new RegExp(statusBar.filePattern).test(currentFilePath));
+    } catch (error) {
+        outputChannel.appendLine(`Error validating status bar item '${statusBar.text}' filePattern for active file '${currentFilePath}'. ${error.name}: ${error.message}`);
+    }
+    return false;
+}
+
+function updateStatusBar() {
+    const settings = vscode.workspace.getConfiguration("tasks.statusbar");
+    let count = 0;
+    const currentFilePath = vscode.window.activeTextEditor && vscode.window.activeTextEditor.document.fileName;
     for (const statusBar of statusBarArray) {
-        if (!statusBar) {
-            continue;
-        }
-        statusBar.hide();
-        const currentFilePath = vscode.window.activeTextEditor && vscode.window.activeTextEditor.document.fileName;
-        const filePattern = statusBar.filePattern;
-        let showStatusBarItem = false;
-        try {
-            showStatusBarItem = !filePattern || (currentFilePath && new RegExp(statusBar.filePattern).test(currentFilePath));
-        } catch (error) {
-            outputChannel.appendLine(`Error validating status bar item '${statusBar.text}' filePattern for active file '${currentFilePath}'. ${error.name}: ${error.message}`);
-        }
-        if (showStatusBarItem) {
+        if (needShowStatusBar(statusBar, currentFilePath)) {
+            if (settings.limit <= count) {
+                statusBarSelect.show();
+                return;
+            }
             statusBar.show();
+            count++;
+        } else {
+            statusBar.hide();
         }
     }
+    statusBarSelect.hide();
 }
 
 function createTaskStatusBar(context, info) {
@@ -239,12 +252,13 @@ function createTaskStatusBar(context, info) {
     context.subscriptions.push(statusBar);
 }
 
-function createSelectStatusBar(context, settings) {
+function createSelectStatusBar(context) {
+    const settings = vscode.workspace.getConfiguration("tasks.statusbar.select");
     const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 50);
     statusBar.text = settings.label || "...";
     statusBar.color = convertColor(settings.color);
     statusBar.command = "workbench.action.tasks.runTask";
-    statusBarArray.push(statusBar);
+    statusBarSelect = statusBar;
     context.subscriptions.push(statusBar);
 }
 
@@ -308,19 +322,11 @@ function loadTasks(context) {
         for (const taskId in taskMap) {
             outputChannel.appendLine(`No match task: ${taskId}`);
         }
-        const settings = vscode.workspace.getConfiguration("tasks.statusbar");
-        if (settings && settings.limit < taskInfo.length) {
-            for (let i = 0; i < settings.limit; ++i) {
-                createTaskStatusBar(context, taskInfo[i]);
-            }
-            createSelectStatusBar(context, settings.select);
+        for (const info of taskInfo) {
+            createTaskStatusBar(context, info);
         }
-        else {
-            for (const info of taskInfo) {
-                createTaskStatusBar(context, info);
-            }
-        }
-        syncStatusBarItemsWithActiveEditor();
+        createSelectStatusBar(context);
+        updateStatusBar();
     });
 }
 
@@ -359,7 +365,7 @@ function activate(context) {
         loadTasks(context);
     }));
     context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(() => {
-        syncStatusBarItemsWithActiveEditor();
+        updateStatusBar();
     }));
     loadTasks(context);
 }
