@@ -219,6 +219,11 @@ function needShowStatusBar(statusBar, currentFilePath) {
 }
 
 function updateStatusBar() {
+    for (const statusBar of statusBarArray) {
+        statusBar.hide();
+    }
+    statusBarSelect.hide();
+
     const settings = vscode.workspace.getConfiguration("tasks.statusbar");
     let count = 0;
     const currentFilePath = vscode.window.activeTextEditor && vscode.window.activeTextEditor.document.fileName;
@@ -230,11 +235,8 @@ function updateStatusBar() {
             }
             statusBar.show();
             count++;
-        } else {
-            statusBar.hide();
         }
     }
-    statusBarSelect.hide();
 }
 
 function createTaskStatusBar(context, info) {
