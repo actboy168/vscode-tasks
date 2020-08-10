@@ -3,8 +3,10 @@ const os = require('os');
 
 var statusBarArray = [];
 var statusBarSelect;
+var selectList = [];
 var outputChannel;
 const RunTaskCommand = "actboy168.run-task"
+const SelectTaskCommand = "actboy168.select-task"
 
 function deactivate(context) {
     statusBarArray.forEach(i => {
@@ -223,6 +225,7 @@ function updateStatusBar() {
         statusBar.hide();
     }
     statusBarSelect.hide();
+    selectList = [];
 
     const settings = vscode.workspace.getConfiguration("tasks.statusbar");
     let count = 0;
@@ -230,12 +233,21 @@ function updateStatusBar() {
     for (const statusBar of statusBarArray) {
         if (needShowStatusBar(statusBar, currentFilePath)) {
             if (settings.limit <= count) {
-                statusBarSelect.show();
-                return;
+                selectList.push({
+                    label: statusBar.text,
+                    description: statusBar.tooltip,
+                    task: statusBar.command.arguments[0]
+                });
             }
-            statusBar.show();
-            count++;
+            else {
+                statusBar.show();
+                count++;
+            }
         }
+    }
+
+    if (selectList.length > 0) {
+        statusBarSelect.show();
     }
 }
 
@@ -259,7 +271,7 @@ function createSelectStatusBar(context) {
     const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 50);
     statusBar.text = settings.label || "...";
     statusBar.color = convertColor(settings.color);
-    statusBar.command = "workbench.action.tasks.runTask";
+    statusBar.command = SelectTaskCommand;
     statusBarSelect = statusBar;
     context.subscriptions.push(statusBar);
 }
@@ -359,6 +371,13 @@ function activate(context) {
                 outputChannel.appendLine(`Invalid task: ${args}`);
                 break;
         }
+    }));
+    context.subscriptions.push(vscode.commands.registerCommand(SelectTaskCommand, () => {
+        vscode.window.showQuickPick(selectList).then(value => {
+            if (value !== undefined) {
+                runTask(value.task);
+            }
+        })
     }));
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(() => {
         loadTasks(context);
