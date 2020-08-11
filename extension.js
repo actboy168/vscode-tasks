@@ -153,6 +153,8 @@ function computeId(task, config) {
     else {
         if (typeof type == "string") {
             props.push(type);
+        } else {
+            props.push("process");
         }
         if (typeof command == "string") {
             props.push(command);
