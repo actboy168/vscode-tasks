@@ -375,7 +375,7 @@ function activate(context) {
         }
     }));
     context.subscriptions.push(vscode.commands.registerCommand(SelectTaskCommand, () => {
-        vscode.window.showQuickPick(selectList).then(value => {
+        vscode.window.showQuickPick(selectList, { placeHolder: "Select task to execute" }).then(value => {
             if (value !== undefined) {
                 runTask(value.task);
             }
