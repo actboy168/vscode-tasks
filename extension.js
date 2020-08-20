@@ -278,6 +278,11 @@ function createSelectStatusBar(context) {
     context.subscriptions.push(statusBar);
 }
 
+function version() {
+    const res = vscode.version.split(".");
+    return parseInt(res[1]);
+}
+
 function matchTasks(taskInfo, taskMap, config) {
     if (typeof config != "object" || !Array.isArray(config.tasks)) {
         return;
@@ -324,6 +329,9 @@ function loadTasks(context) {
             const tasksJson = configuration.inspect('tasks');
             if (tasksJson) {
                 matchTasks(taskInfo, taskMap, tasksJson.globalValue);
+                if (version() >= 49) {
+                    matchTasks(taskInfo, taskMap, tasksJson.workspaceValue);
+                }
             }
         }
         for (const workspaceFolder of vscode.workspace.workspaceFolders) {
