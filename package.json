@@ -44,8 +44,11 @@
                     "default": ""
                 },
                 "tasks.statusbar.limit": {
-                    "type": "integer",
-                    "default": 6
+                    "type": [
+                        "integer",
+                        "null"
+                    ],
+                    "default": null
                 },
                 "tasks.statusbar.select.label": {
                     "type": "string",

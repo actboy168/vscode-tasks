@@ -234,7 +234,7 @@ function updateStatusBar() {
     const currentFilePath = vscode.window.activeTextEditor && vscode.window.activeTextEditor.document.fileName;
     for (const statusBar of statusBarArray) {
         if (needShowStatusBar(statusBar, currentFilePath)) {
-            if (settings.limit <= count) {
+            if (typeof settings.limit === "number" && settings.limit <= count) {
                 selectList.push({
                     label: statusBar.text,
                     description: statusBar.tooltip,
