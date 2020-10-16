@@ -9,11 +9,18 @@ var outputChannel;
 const RunTaskCommand = "actboy168.run-task"
 const SelectTaskCommand = "actboy168.select-task"
 
+function LOG(msg) {
+    if (outputChannel === undefined) {
+        outputChannel = vscode.window.createOutputChannel("Extension-Tasks");
+    }
+    outputChannel.appendLine(msg);
+}
+
 function needShowStatusBar(statusBar, currentFilePath) {
     try {
         return !statusBar.filePattern || (currentFilePath && new RegExp(statusBar.filePattern).test(currentFilePath));
     } catch (error) {
-        outputChannel.appendLine(`Error validating status bar item '${statusBar.text}' filePattern for active file '${currentFilePath}'. ${error.name}: ${error.message}`);
+        LOG(`Error validating status bar item '${statusBar.text}' filePattern for active file '${currentFilePath}'. ${error.name}: ${error.message}`);
     }
     return false;
 }
@@ -77,6 +84,9 @@ function cleanStatusBar() {
 function deactivate() {
     closeUpdateStatusBar();
     cleanStatusBar();
+    if (outputChannel !== undefined) {
+        outputChannel.dispose();
+    }
 }
 
 function getPlatKV(t) {
@@ -309,7 +319,7 @@ function matchTasks(taskInfo, taskMap, config) {
         const taskId = computeId(taskCfg, config);
         const task = taskMap[taskId];
         if (!task) {
-            outputChannel.appendLine(`Not found task: ${taskId}`);
+            LOG(`Not found task: ${taskId}`);
             continue;
         }
         delete taskMap[taskId];
@@ -363,7 +373,7 @@ function loadTasks() {
             }
         }
         for (const taskId in taskMap) {
-            outputChannel.appendLine(`No match task: ${taskId}`);
+            LOG(`No match task: ${taskId}`);
         }
         if (taskInfo.length > 0) {
             for (const info of taskInfo) {
@@ -385,7 +395,6 @@ function runTask(task) {
 }
 
 function activate(context) {
-    outputChannel = vscode.window.createOutputChannel("VSCode Tasks");
     context.subscriptions.push(vscode.commands.registerCommand(RunTaskCommand, (args) => {
         switch (typeof args) {
             case "number":
@@ -395,14 +404,14 @@ function activate(context) {
                     runTask(task);
                 }
                 else {
-                    outputChannel.appendLine(`Not found task #${args}`);
+                    LOG(`Not found task #${args}`);
                 }
                 break;
             case "object":
                 runTask(args);
                 break;
             default:
-                outputChannel.appendLine(`Invalid task: ${args}`);
+                LOG(`Invalid task: ${args}`);
                 break;
         }
     }));
