@@ -32,20 +32,76 @@
                     "description": "Set the active editor file pattern for which the statusbar is displayed.\nLeave blank to have always displayed."
                 }
             }
+        },
+        "options": {
+            "type": "object",
+            "properties": {
+                "statusbar": {
+                    "$ref": "#/definitions/statusbar"
+                }
+            }
         }
     },
     "type": "object",
     "properties": {
+        "windows": {
+            "type": "object",
+            "properties": {
+                "options": {
+                    "$ref": "#/definitions/options"
+                }
+            }
+        },
+        "linux": {
+            "type": "object",
+            "properties": {
+                "options": {
+                    "$ref": "#/definitions/options"
+                }
+            }
+        },
+        "osx": {
+            "type": "object",
+            "properties": {
+                "options": {
+                    "$ref": "#/definitions/options"
+                }
+            }
+        },
+        "options": {
+            "$ref": "#/definitions/options"
+        },
         "tasks": {
             "type": "array",
             "items": {
                 "type": "object",
                 "properties": {
-                    "options": {
+                    "windows": {
                         "type": "object",
                         "properties": {
-                            "statusbar": {"$ref": "#/definitions/statusbar"}
+                            "options": {
+                                "$ref": "#/definitions/options"
+                            }
                         }
+                    },
+                    "linux": {
+                        "type": "object",
+                        "properties": {
+                            "options": {
+                                "$ref": "#/definitions/options"
+                            }
+                        }
+                    },
+                    "osx": {
+                        "type": "object",
+                        "properties": {
+                            "options": {
+                                "$ref": "#/definitions/options"
+                            }
+                        }
+                    },
+                    "options": {
+                        "$ref": "#/definitions/options"
                     }
                 }
             }
