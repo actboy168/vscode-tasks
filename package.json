@@ -23,7 +23,7 @@
         "vscode": "^1.44.0"
     },
     "activationEvents": [
-        "workspaceContains:.vscode/tasks.json"
+        "*"
     ],
     "main": "./extension.js",
     "contributes": {
