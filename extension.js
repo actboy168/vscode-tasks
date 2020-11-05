@@ -2,7 +2,7 @@ const vscode = require('vscode');
 const os = require('os');
 
 var statusBarArray = [];
-var statusBarSelect;
+var memoryStatusBarArray = [];
 var selectList = [];
 var eventChangeActiveTextEditor;
 var outputChannel;
@@ -29,13 +29,13 @@ function updateStatusBar() {
     for (const statusBar of statusBarArray) {
         statusBar.hide();
     }
-    statusBarSelect.hide();
     selectList = [];
 
     const settings = vscode.workspace.getConfiguration("tasks.statusbar");
     let count = 0;
     const currentFilePath = vscode.window.activeTextEditor && vscode.window.activeTextEditor.document.fileName;
-    for (const statusBar of statusBarArray) {
+    for (let i = 0; i < statusBarArray.length - 1; ++i) {
+        const statusBar = statusBarArray[i];
         if (needShowStatusBar(statusBar, currentFilePath)) {
             if (typeof settings.limit === "number" && settings.limit <= count) {
                 selectList.push({
@@ -52,7 +52,7 @@ function updateStatusBar() {
     }
 
     if (selectList.length > 0) {
-        statusBarSelect.show();
+        statusBarArray[statusBarArray.length-1].show();
     }
 }
 
@@ -72,13 +72,10 @@ function closeUpdateStatusBar() {
 
 function cleanStatusBar() {
     statusBarArray.forEach(i => {
+        i.hide();
         i.dispose();
     });
     statusBarArray = [];
-    if (statusBarSelect) {
-        statusBarSelect.dispose();
-        statusBarSelect = undefined;
-    }
 }
 
 function deactivate() {
@@ -285,25 +282,48 @@ function convertColor(color) {
 
 function createTaskStatusBar(info) {
     const task = info.task;
-    const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 50);
-    statusBar.text = info.label || task.name;
-    statusBar.tooltip = info.tooltip || task.detail;
-    statusBar.color = convertColor(info.color);
-    statusBar.filePattern = info.filePattern;
-    statusBar.command = {
-        command: RunTaskCommand,
-        arguments: [task]
-    };
-    statusBarArray.push(statusBar);
+    memoryStatusBarArray.push({
+        text: info.label || task.name,
+        tooltip: info.tooltip || task.detail,
+        color: convertColor(info.color),
+        filePattern: info.filePattern,
+        command: {
+            command: RunTaskCommand,
+            arguments: [task]
+        }
+    });
 }
 
 function createSelectStatusBar() {
     const settings = vscode.workspace.getConfiguration("tasks.statusbar.select");
-    const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 50);
-    statusBar.text = settings.label || "...";
-    statusBar.color = convertColor(settings.color);
-    statusBar.command = SelectTaskCommand;
-    statusBarSelect = statusBar;
+    memoryStatusBarArray.push({
+        text: settings.label || "...",
+        tooltip: undefined,
+        color: convertColor(settings.color),
+        filePattern: undefined,
+        command: SelectTaskCommand
+    });
+}
+
+function syncStatusBar() {
+    const diff = memoryStatusBarArray.length - statusBarArray.length;
+    for (let i = 0; i < diff; ++i) {
+        statusBarArray.push(vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 50));
+    }
+    for (let i = 0; i < -diff; ++i) {
+        let statusBar = statusBarArray.pop();
+        statusBar.hide();
+        statusBar.dispose();
+    }
+    for (let i = 0; i < memoryStatusBarArray.length; ++i) {
+        let to = statusBarArray[i];
+        const from = memoryStatusBarArray[i];
+        to.text = from.text;
+        to.tooltip = from.tooltip;
+        to.color = from.color;
+        to.filePattern = from.filePattern;
+        to.command = from.command;
+    }
 }
 
 function version() {
@@ -338,8 +358,9 @@ function matchTasks(taskInfo, taskMap, config) {
 }
 
 function loadTasks() {
-    cleanStatusBar();
+    memoryStatusBarArray = [];
     if (vscode.workspace.workspaceFolders === undefined) {
+        syncStatusBar();
         closeUpdateStatusBar();
         return;
     }
@@ -380,9 +401,11 @@ function loadTasks() {
                 createTaskStatusBar(info);
             }
             createSelectStatusBar();
+            syncStatusBar();
             openUpdateStatusBar();
         }
         else {
+            syncStatusBar();
             closeUpdateStatusBar();
         }
     });
