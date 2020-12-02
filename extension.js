@@ -9,6 +9,8 @@ var outputChannel;
 const RunTaskCommand = "actboy168.run-task"
 const SelectTaskCommand = "actboy168.select-task"
 
+const enableProposedApi = false;
+
 function LOG(msg) {
     if (outputChannel === undefined) {
         outputChannel = vscode.window.createOutputChannel("Extension-Tasks");
@@ -286,6 +288,7 @@ function createTaskStatusBar(info) {
         text: info.label || task.name,
         tooltip: info.tooltip || task.detail,
         color: convertColor(info.color),
+        backgroundColor: info.backgroundColor? vscode.ThemeColor(info.backgroundColor): undefined,
         filePattern: info.filePattern,
         command: {
             command: RunTaskCommand,
@@ -300,6 +303,7 @@ function createSelectStatusBar() {
         text: settings.label || "...",
         tooltip: undefined,
         color: convertColor(settings.color),
+        backgroundColor: undefined,
         filePattern: undefined,
         command: SelectTaskCommand
     });
@@ -321,6 +325,9 @@ function syncStatusBar() {
         to.text = from.text;
         to.tooltip = from.tooltip;
         to.color = from.color;
+        if (enableProposedApi) {
+            to.backgroundColor = from.backgroundColor;
+        }
         to.filePattern = from.filePattern;
         to.command = from.command;
     }
@@ -352,6 +359,7 @@ function matchTasks(taskInfo, taskMap, config) {
             label: getStatusBar(taskCfg, config, "label"),
             tooltip: getStatusBar(taskCfg, config, "tooltip"),
             color: getStatusBar(taskCfg, config, "color"),
+            backgroundColor: getStatusBar(taskCfg, config, "backgroundColor"),
             filePattern: getStatusBar(taskCfg, config, "filePattern"),
         });
     }
