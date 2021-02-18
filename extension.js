@@ -9,7 +9,10 @@ var outputChannel;
 const RunTaskCommand = "actboy168.run-task"
 const SelectTaskCommand = "actboy168.select-task"
 
-const enableProposedApi = false;
+const VSCodeVersion = (function() {
+    const res = vscode.version.split(".");
+    return parseInt(res[1]);
+})()
 
 function LOG(msg) {
     if (outputChannel === undefined) {
@@ -325,17 +328,12 @@ function syncStatusBar() {
         to.text = from.text;
         to.tooltip = from.tooltip;
         to.color = from.color;
-        if (enableProposedApi) {
+        if (VSCodeVersion >= 53) {
             to.backgroundColor = from.backgroundColor;
         }
         to.filePattern = from.filePattern;
         to.command = from.command;
     }
-}
-
-function version() {
-    const res = vscode.version.split(".");
-    return parseInt(res[1]);
 }
 
 function matchTasks(taskInfo, taskMap, config) {
@@ -387,7 +385,7 @@ function loadTasks() {
             const tasksJson = configuration.inspect('tasks');
             if (tasksJson) {
                 matchTasks(taskInfo, taskMap, tasksJson.globalValue);
-                if (version() >= 49) {
+                if (VSCodeVersion >= 49) {
                     matchTasks(taskInfo, taskMap, tasksJson.workspaceValue);
                 }
             }

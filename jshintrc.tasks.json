@@ -26,6 +26,13 @@
                     "format": "color",
                     "description": "Set the foreground color of the statusbar.\nhttps://code.visualstudio.com/api/references/theme-color"
                 },
+                "backgroundColor": {
+                    "type": "string",
+                    "enum": [
+                        "statusBarItem.errorBackground"
+                    ],
+                    "description": "Set the background color of the statusbar.\nOnly `statusBarItem.errorBackground` is supported."
+                },
                 "filePattern": {
                     "type": "string",
                     "default": "",
