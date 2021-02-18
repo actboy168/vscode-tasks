@@ -265,6 +265,9 @@ function getTaskId(task) {
         return task._id;
     }
     if (task.definition.type === "$empty") {
+        return "shell";
+    }
+    if (task.definition.type === "$composite") {
         return "$empty,";
     }
     return task.definition.id;
