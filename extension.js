@@ -375,6 +375,7 @@ function loadTasks() {
     }
 
     vscode.tasks.fetchTasks().then((tasks) => {
+		memoryStatusBarArray = [];
         let taskInfo = [];
         let taskMap = {};
         for (const task of tasks) {
