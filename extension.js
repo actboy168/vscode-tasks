@@ -458,6 +458,10 @@ function activate(context) {
     }));
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(loadTasks));
     context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders(loadTasks));
+    context.subscriptions.push(vscode.tasks.onDidStartTask(loadTasks));
+    context.subscriptions.push(vscode.tasks.onDidStartTaskProcess(loadTasks));
+    context.subscriptions.push(vscode.tasks.onDidEndTask(loadTasks));
+    context.subscriptions.push(vscode.tasks.onDidEndTaskProcess(loadTasks));
     loadTasks();
 }
 
