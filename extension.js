@@ -318,7 +318,15 @@ function createSelectStatusBar() {
 function syncStatusBar() {
     const diff = memoryStatusBarArray.length - statusBarArray.length;
     for (let i = 0; i < diff; ++i) {
-        statusBarArray.push(vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 50));
+        let statusBar
+        if (VSCodeVersion >= 57) {
+            statusBar = vscode.window.createStatusBarItem("actboy168.tasks", vscode.StatusBarAlignment.Left, 50);
+            statusBar.name = "Tasks";
+        }
+        else {
+            statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 50);
+        }
+        statusBarArray.push(statusBar);
     }
     for (let i = 0; i < -diff; ++i) {
         let statusBar = statusBarArray.pop();
