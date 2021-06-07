@@ -25,6 +25,12 @@
     "activationEvents": [
         "*"
     ],
+    "capabilities": {
+        "untrustedWorkspaces": {
+            "supported": false,
+            "description" : "Tasks are disabled in Restricted Mode."
+        }
+    },
     "main": "./extension.js",
     "contributes": {
         "jsonValidation": [
