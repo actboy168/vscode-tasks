@@ -363,11 +363,12 @@ function matchTasks(taskInfo, taskMap, config) {
         if (hide) {
             continue;
         }
+        const running = vscode.tasks.taskExecutions.find(e => e._id === task._id) !== undefined;
         taskInfo.push({
             task: task,
-            label: getStatusBar(taskCfg, config, "label"),
+            label: (running && getStatusBar(taskCfg, config, "labelRunning")) || getStatusBar(taskCfg, config, "label"),
             tooltip: getStatusBar(taskCfg, config, "tooltip"),
-            color: getStatusBar(taskCfg, config, "color"),
+            color: (running && getStatusBar(taskCfg, config, "colorRunning")) || getStatusBar(taskCfg, config, "color"),
             backgroundColor: getStatusBar(taskCfg, config, "backgroundColor"),
             filePattern: getStatusBar(taskCfg, config, "filePattern"),
         });
@@ -465,6 +466,8 @@ function activate(context) {
     }));
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(loadTasks));
     context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders(loadTasks));
+    context.subscriptions.push(vscode.tasks.onDidStartTask(loadTasks));
+    context.subscriptions.push(vscode.tasks.onDidEndTask(loadTasks));
     loadTasks();
 }
 
