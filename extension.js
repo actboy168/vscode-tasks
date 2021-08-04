@@ -45,7 +45,7 @@ function updateStatusBar() {
             if (typeof settings.limit === "number" && settings.limit <= count) {
                 selectList.push({
                     label: statusBar.text,
-                    description: statusBar.tooltip,
+                    description: statusBar.tooltip? statusBar.tooltip.value: undefined,
                     task: statusBar.command.arguments[0]
                 });
             }
@@ -288,11 +288,23 @@ function convertColor(color) {
     return undefined;
 }
 
+function convertTooltip(tooltip) {
+    if (VSCodeVersion < 59) {
+        return tooltip;
+    }
+    if (tooltip) {
+        let md = new vscode.MarkdownString(tooltip);
+        md.isTrusted = true;
+        md.supportThemeIcons = true;
+        return md;
+    }
+}
+
 function createTaskStatusBar(info) {
     const task = info.task;
     memoryStatusBarArray.push({
         text: info.label || task.name,
-        tooltip: info.tooltip || task.detail,
+        tooltip: convertTooltip(info.tooltip || task.detail),
         color: convertColor(info.color),
         backgroundColor: info.backgroundColor? vscode.ThemeColor(info.backgroundColor): undefined,
         filePattern: info.filePattern,
