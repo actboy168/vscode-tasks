@@ -24,10 +24,6 @@
                     "type": "string",
                     "default": "#FFF",
                     "format": "color",
-                    "enum": [
-                        "statusBarItem.errorForeground",
-                        "statusBarItem.warningForeground"
-                    ],
                     "description": "Set the foreground color of the statusbar.\nhttps://code.visualstudio.com/api/references/theme-color"
                 },
                 "backgroundColor": {
