@@ -300,7 +300,7 @@ function convertTooltip(tooltip) {
 function createTaskStatusBar(info) {
     const task = info.task;
     memoryStatusBarArray.push({
-        text: info.label || task.name,
+        text: info.label,
         tooltip: convertTooltip(info.tooltip || task.detail),
         color: convertColor(info.color),
         backgroundColor: info.backgroundColor? vscode.ThemeColor(info.backgroundColor): undefined,
@@ -364,9 +364,24 @@ function matchTasks(taskInfo, taskMap, config) {
         if (hide) {
             continue;
         }
+        let label = getStatusBar(taskCfg, config, "label");
+        if (!label) {
+            if (VSCodeVersion >= 69) {
+                const icon = getValue(taskCfg, config, "icon");
+                if (icon) {
+                    label = `$(${icon}) ${task.name}`;
+                }
+                else {
+                    label = task.name;
+                }
+            }
+            else {
+                label = task.name;
+            }
+        }
         taskInfo.push({
             task: task,
-            label: getStatusBar(taskCfg, config, "label"),
+            label: label,
             tooltip: getStatusBar(taskCfg, config, "tooltip"),
             color: getStatusBar(taskCfg, config, "color"),
             backgroundColor: getStatusBar(taskCfg, config, "backgroundColor"),
