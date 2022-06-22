@@ -289,9 +289,6 @@ function convertColor(color) {
 }
 
 function convertTooltip(tooltip) {
-    if (VSCodeVersion < 59) {
-        return tooltip;
-    }
     if (tooltip) {
         let md = new vscode.MarkdownString(tooltip);
         md.isTrusted = true;
@@ -330,14 +327,8 @@ function createSelectStatusBar() {
 function syncStatusBar() {
     const diff = memoryStatusBarArray.length - statusBarArray.length;
     for (let i = 0; i < diff; ++i) {
-        let statusBar
-        if (VSCodeVersion >= 57) {
-            statusBar = vscode.window.createStatusBarItem("actboy168.tasks", vscode.StatusBarAlignment.Left, 50);
-            statusBar.name = "Tasks";
-        }
-        else {
-            statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 50);
-        }
+        let statusBar = vscode.window.createStatusBarItem("actboy168.tasks", vscode.StatusBarAlignment.Left, 50);
+        statusBar.name = "Tasks";
         statusBarArray.push(statusBar);
     }
     for (let i = 0; i < -diff; ++i) {
@@ -351,9 +342,7 @@ function syncStatusBar() {
         to.text = from.text;
         to.tooltip = from.tooltip;
         to.color = from.color;
-        if (VSCodeVersion >= 53) {
-            to.backgroundColor = from.backgroundColor;
-        }
+        to.backgroundColor = from.backgroundColor;
         to.filePattern = from.filePattern;
         to.command = from.command;
     }
@@ -409,9 +398,7 @@ function loadTasks() {
             const tasksJson = configuration.inspect('tasks');
             if (tasksJson) {
                 matchTasks(taskInfo, taskMap, tasksJson.globalValue);
-                if (VSCodeVersion >= 49) {
-                    matchTasks(taskInfo, taskMap, tasksJson.workspaceValue);
-                }
+                matchTasks(taskInfo, taskMap, tasksJson.workspaceValue);
             }
         }
         for (const workspaceFolder of vscode.workspace.workspaceFolders) {
