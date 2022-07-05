@@ -368,8 +368,8 @@ function matchTasks(taskInfo, taskMap, config) {
         if (!label) {
             if (VSCodeVersion >= 69) {
                 const icon = getValue(taskCfg, config, "icon");
-                if (icon) {
-                    label = `$(${icon}) ${task.name}`;
+                if (icon && icon.id) {
+                    label = `$(${icon.id}) ${task.name}`;
                 }
                 else {
                     label = task.name;
