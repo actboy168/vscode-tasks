@@ -282,7 +282,7 @@ function convertColor(color) {
             return undefined;
         }
         else {
-            return vscode.ThemeColor(color);
+            return new vscode.ThemeColor(color);
         }
     }
     return undefined;
@@ -303,7 +303,7 @@ function createTaskStatusBar(info) {
         text: info.label,
         tooltip: convertTooltip(info.tooltip || task.detail),
         color: convertColor(info.color),
-        backgroundColor: info.backgroundColor? vscode.ThemeColor(info.backgroundColor): undefined,
+        backgroundColor: info.backgroundColor? new vscode.ThemeColor(info.backgroundColor): undefined,
         filePattern: info.filePattern,
         command: {
             command: RunTaskCommand,
