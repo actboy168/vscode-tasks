@@ -1,0 +1,12 @@
+name: publish
+on: push
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - run: npm install -g vsce ovsx
+    - run: npx vsce publish -p ${{ secrets.VSCE_KEY }}
+      continue-on-error: true
+    #- run: npx ovsx publish -p ${{ secrets.OVSX_KEY }}
+    #  continue-on-error: true
