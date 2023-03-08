@@ -2,7 +2,7 @@
     "name": "tasks",
     "displayName": "Tasks",
     "description": "Load VSCode Tasks into Status Bar.",
-    "version": "0.11.1",
+    "version": "0.12.0",
     "publisher": "actboy168",
     "repository": {
         "type": "git",
@@ -20,7 +20,7 @@
     ],
     "icon": "logo.png",
     "engines": {
-        "vscode": "^1.59.0"
+        "vscode": "^1.75.0"
     },
     "activationEvents": [
         "onStartupFinished"
@@ -28,7 +28,7 @@
     "capabilities": {
         "untrustedWorkspaces": {
             "supported": false,
-            "description" : "Tasks are disabled in Restricted Mode."
+            "description": "Tasks are disabled in Restricted Mode."
         }
     },
     "main": "./extension.js",
