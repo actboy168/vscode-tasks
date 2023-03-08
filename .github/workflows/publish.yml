@@ -8,5 +8,5 @@ jobs:
     - run: npm install -g vsce ovsx
     - run: npx vsce publish -p ${{ secrets.VSCE_KEY }}
       continue-on-error: true
-    #- run: npx ovsx publish -p ${{ secrets.OVSX_KEY }}
-    #  continue-on-error: true
+    - run: npx ovsx publish -p ${{ secrets.OVSX_KEY }}
+      continue-on-error: true
