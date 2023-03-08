@@ -91,11 +91,13 @@ function deactivate() {
     }
 }
 
-function getPlatKV(t) {
-    if (os.platform() == "win32") {
+const platform = os.platform();
+
+function getPlatformValue(t) {
+    if (platform == "win32") {
         return t.windows
     }
-    else if (os.platform() == "darwin") {
+    else if (platform == "darwin") {
         return t.osx
     }
     else {
@@ -103,51 +105,65 @@ function getPlatKV(t) {
     }
 }
 
-function getValue(t, g, k) {
-    const pt = getPlatKV(t);
-    if (typeof pt == 'object' && k in pt) {
-        return pt[k];
+function deepClone(a, b) {
+    if (typeof b !== "object" || !b) {
+        return b;
     }
-    if (k in t) {
-        return t[k];
+    if (Array.isArray(b)) {
+        return b.slice();
     }
-    const gt = getPlatKV(g);
-    if (typeof gt == 'object' && k in gt) {
-        return gt[k];
+    let o = typeof a === "object"? a: {};
+    for (const k in b) {
+        o[k] = deepClone(o[k], b[k]);
     }
-    if (k in g) {
-        return g[k];
+    return o;
+};
+
+function copyObject(t, a) {
+    for (const k in a) {
+        t[k] = deepClone(t[k], a[k])
     }
 }
 
-function getStatusBarValue(tbl, key) {
-    if (("options" in tbl) && (typeof tbl.options === 'object')
-        && ("statusbar" in tbl.options) && (typeof tbl.options.statusbar === 'object')
-        && (key in tbl.options.statusbar)) {
-        return tbl.options.statusbar[key];
-    }
-    return undefined;
-}
-
-function getStatusBarPlat(tbl, key) {
-    const plat = getPlatKV(tbl);
-    if (typeof plat == "object") {
-        const res = getStatusBarValue(plat, key);
-        if (res !== undefined) {
-            return res;
+function copyObjectWithIgnore(t, a, ignore) {
+    for (const k in a) {
+        if (!(k in ignore)) {
+            t[k] = deepClone(t[k], a[k])
         }
     }
-    return getStatusBarValue(tbl, key);
 }
 
-function getStatusBar(task, global, key) {
-    let res = getStatusBarPlat(task, key);
-    if (res !== undefined) {
-        return res;
+const ignore_globals = {
+    tasks: true,
+    version: true,
+    windows: true,
+    osx: true,
+    linux: true,
+};
+
+const ignore_locals = {
+    windows: true,
+    osx: true,
+    linux: true,
+};
+
+function computeTaskInfo(task, config) {
+    let t = {}
+    copyObjectWithIgnore(t, config, ignore_globals)
+    copyObject(t, getPlatformValue(config))
+    copyObjectWithIgnore(t, task, ignore_locals)
+    copyObject(t, getPlatformValue(task))
+    return t
+}
+
+function getStatusBarValue(task, key) {
+    if (("options" in task) && (typeof task.options === 'object')
+        && ("statusbar" in task.options) && (typeof task.options.statusbar === 'object')
+        && (key in task.options.statusbar)) {
+        return task.options.statusbar[key];
     }
-    res = getStatusBarPlat(global, key);
-    if (res !== undefined) {
-        return res;
+    if (key in task) {
+        return task[key];
     }
     const settings = vscode.workspace.getConfiguration("tasks.statusbar.default");
     if (settings !== undefined) {
@@ -156,121 +172,122 @@ function getStatusBar(task, global, key) {
     return undefined;
 }
 
-function computeTaskExecutionId(values) {
+function computeTaskExecutionId(taskInfo, type) {
+    const props = [];
+    const command = taskInfo.command;
+    const args = taskInfo.args;
+    props.push(type);
+    if (typeof command === "string") {
+        props.push(command);
+    }
+    else if (Array.isArray(command)) {
+        let cmds;
+        for (const c of command) {
+            if (typeof c === "string") {
+                if (cmds === undefined) {
+                    cmds = c;
+                }
+                else {
+                    cmds += ' ' + c;
+                }
+            }
+        }
+        if (cmds !== undefined) {
+            props.push(cmds);
+        }
+    }
+    else {
+        return;
+    }
+    if (Array.isArray(args) && args.length > 0) {
+        for (const arg of args) {
+            if (typeof arg == "string") {
+                props.push(arg);
+            } else if (typeof arg == "object") {
+                props.push(arg.value);
+            }
+        }
+    }
     let id = '';
-    for (let i = 0; i < values.length; i++) {
-        id += values[i].replace(/,/g, ',,') + ',';
+    for (let i = 0; i < props.length; i++) {
+        id += props[i].replace(/,/g, ',,') + ',';
     }
     return id;
 }
 
-function computeIdForNpm(task, config, name) {
-    const props = [];
-    const script = getValue(task, config, "script");
-    const path = getValue(task, config, "path");
-
-    if (typeof name == "string") {
-        props.push(name);
+function computeTaskExecutionDefinition(taskInfo, type) {
+    const id = computeTaskExecutionId(taskInfo, type);
+    if (id === undefined) {
+        return {
+            type: "$empty"
+        };
     }
-    else if (typeof script == "string" && typeof path == "string") {
-        props.push(script + " - " + path.substr(0, path.length - 1));
-    }
-    else if (typeof script == "string") {
-        props.push(script);
-    }
-    else {
-        props.push("");
-    }
-    let first = true;
-    if (typeof path == "string") {
-        if (first) {
-            props.push("vscode.npm.path");
-            first = false;
-        }
-        else {
-            props.push("path");
-        }
-        props.push(path);
-    }
-    if (typeof script == "string") {
-        if (first) {
-            props.push("vscode.npm.script");
-            first = false;
-        }
-        else {
-            props.push("script");
-        }
-        props.push(script);
-    }
-    props.push("type");
-    props.push("npm");
-    return computeTaskExecutionId(props);
+    return {
+        type: id !== undefined? type: "$empty",
+        id: id
+    };
 }
 
-function computeId(task, config) {
-    const name = "label" in task ? task.label : task.taskName;
-    const type = getValue(task, config, "type");
-    if (type == "npm") {
-        return computeIdForNpm(task, config, name);
+function computeTaskDefinition(taskInfo) {
+    const type = taskInfo.type;
+    if (type == "shell" || type == "process") {
+        return computeTaskExecutionDefinition(taskInfo, type);
     }
-    const props = [];
-    const command = getValue(task, config, "command");
-    const args = getValue(task, config, "args");
-    if (typeof name == "string") {
-        props.push(name);
-    }
-    if (command === undefined) {
-        props.push("$empty");
-    }
-    else {
-        if (typeof type == "string") {
-            props.push(type);
-        } else {
-            props.push("process");
-        }
-        if (typeof command == "string") {
-            props.push(command);
-        }
-        else if (Array.isArray(command)) {
-            let cmds;
-            for (const c of command) {
-                if (typeof c == "string") {
-                    if (cmds === undefined) {
-                        cmds = c;
-                    }
-                    else {
-                        cmds += ' ' + c;
-                    }
-                }
-            }
-            if (cmds !== undefined) {
-                props.push(cmds);
-            }
-        }
-        if (Array.isArray(args) && args.length > 0) {
-            for (const arg of args) {
-                if (typeof arg == "string") {
-                    props.push(arg);
-                } else if (typeof arg == "object") {
-                    props.push(arg.value);
-                }
-            }
-        }
-    }
-    return computeTaskExecutionId(props);
+    return taskInfo;
 }
 
-function getTaskId(task) {
-    if (task.definition.type == "npm") {
-        return task._id;
+function deepEqual(a, b) {
+    const a_type = typeof a;
+    const b_type = typeof a;
+    if (a_type !== b_type) {
+        return false;
     }
-    if (task.definition.type === "$empty") {
-        return "$empty,";
+    if (a_type !== "object") {
+        return a !== b;
     }
-    if (task.definition.type === "$composite") {
-        return "$empty,";
+    const a_keys = Object.keys(a);
+    const b_keys = Object.keys(b);
+    if (a_keys.length !== b_keys.length) {
+        return false;
     }
-    return task.definition.id;
+    for (const key of a_keys) {
+        if (!deepEqual(a[key], b[key])){
+            return false;
+        }
+    }
+    return true;
+}
+
+function matchDefinition(a, b) {
+    if (a.type === "$empty" || a.type === "$composite") {
+        //TODO
+        return true;
+    }
+    for (const k in a) {
+        const v = a[k];
+        if (deepEqual(v, b[k])) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function matchTask(taskMap, taskName, taskDefinition) {
+    if (!(taskName in taskMap)) {
+        return;
+    }
+    const ary = taskMap[taskName];
+    if (ary.length == 1) {
+        delete taskMap[taskName];
+        return ary[0];
+    }
+    for (let i = 0; i < ary.length; ++i) {
+        const v = ary[i];
+        if (matchDefinition(v.definition, taskDefinition)) {
+            ary.splice(i, 1);
+            return v;
+        }
+    }
 }
 
 function convertColor(color) {
@@ -348,26 +365,27 @@ function syncStatusBar() {
     }
 }
 
-function matchTasks(taskInfo, taskMap, config) {
+function matchTasks(taskStatusBars, taskMap, config) {
     if (typeof config != "object" || !Array.isArray(config.tasks)) {
         return;
     }
     for (const taskCfg of config.tasks) {
-        const taskId = computeId(taskCfg, config);
-        const task = taskMap[taskId];
+        const taskName = "label" in taskCfg ? taskCfg.label : taskCfg.taskName;
+        const taskInfo = computeTaskInfo(taskCfg, config);
+        const taskDefinition = computeTaskDefinition(taskInfo);
+        const task = matchTask(taskMap, taskName, taskDefinition);
         if (!task) {
-            LOG(`Not found task: ${taskId}`);
+            LOG(`Not found task: ${taskName}`);
             continue;
         }
-        delete taskMap[taskId];
-        const hide = getStatusBar(taskCfg, config, "hide");
+        const hide = getStatusBarValue(taskInfo, "hide");
         if (hide) {
             continue;
         }
-        let label = getStatusBar(taskCfg, config, "label");
+        let label = getStatusBarValue(taskInfo, "label");
         if (!label) {
             if (VSCodeVersion >= 69) {
-                const icon = getValue(taskCfg, config, "icon");
+                const icon = taskInfo.icon;
                 if (icon && icon.id) {
                     label = `$(${icon.id}) ${task.name}`;
                 }
@@ -379,13 +397,13 @@ function matchTasks(taskInfo, taskMap, config) {
                 label = task.name;
             }
         }
-        taskInfo.push({
+        taskStatusBars.push({
             task: task,
             label: label,
-            tooltip: getStatusBar(taskCfg, config, "tooltip"),
-            color: getStatusBar(taskCfg, config, "color"),
-            backgroundColor: getStatusBar(taskCfg, config, "backgroundColor"),
-            filePattern: getStatusBar(taskCfg, config, "filePattern"),
+            tooltip: getStatusBarValue(taskInfo, "tooltip"),
+            color: getStatusBarValue(taskInfo, "color"),
+            backgroundColor: getStatusBarValue(taskInfo, "backgroundColor"),
+            filePattern: getStatusBarValue(taskInfo, "filePattern"),
         });
     }
 }
@@ -400,20 +418,24 @@ function loadTasks() {
 
     vscode.tasks.fetchTasks().then((tasks) => {
         memoryStatusBarArray = [];
-        let taskInfo = [];
+        let taskStatusBars = [];
         let taskMap = {};
         for (const task of tasks) {
             if (task.source == "Workspace") {
-                const taskId = task.name + ',' + getTaskId(task);
-                taskMap[taskId] = task;
+                if (task.name in taskMap) {
+                    taskMap[task.name].push(task);
+                }
+                else {
+                    taskMap[task.name] = [task];
+                }
             }
         }
         const configuration = vscode.workspace.getConfiguration();
         if (configuration) {
             const tasksJson = configuration.inspect('tasks');
             if (tasksJson) {
-                matchTasks(taskInfo, taskMap, tasksJson.globalValue);
-                matchTasks(taskInfo, taskMap, tasksJson.workspaceValue);
+                matchTasks(taskStatusBars, taskMap, tasksJson.globalValue);
+                matchTasks(taskStatusBars, taskMap, tasksJson.workspaceValue);
             }
         }
         for (const workspaceFolder of vscode.workspace.workspaceFolders) {
@@ -421,15 +443,15 @@ function loadTasks() {
             if (configuration) {
                 const tasksJson = configuration.inspect('tasks');
                 if (tasksJson) {
-                    matchTasks(taskInfo, taskMap, tasksJson.workspaceFolderValue);
+                    matchTasks(taskStatusBars, taskMap, tasksJson.workspaceFolderValue);
                 }
             }
         }
-        for (const taskId in taskMap) {
-            LOG(`No match task: ${taskId}`);
+        for (const taskName in taskMap) {
+            LOG(`No match task: ${taskName}`);
         }
-        if (taskInfo.length > 0) {
-            for (const info of taskInfo) {
+        if (taskStatusBars.length > 0) {
+            for (const info of taskStatusBars) {
                 createTaskStatusBar(info);
             }
             createSelectStatusBar();
