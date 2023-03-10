@@ -153,6 +153,9 @@ function computeTaskInfo(task, config) {
     copyObject(t, getPlatformValue(config))
     copyObjectWithIgnore(t, task, ignore_locals)
     copyObject(t, getPlatformValue(task))
+    if (t.type === undefined) {
+        t.type = "process";
+    }
     return t
 }
 
@@ -415,18 +418,13 @@ function loadTasks() {
     vscode.tasks.fetchTasks().then((tasks) => {
         memoryStatusBarArray = [];
         let taskStatusBars = [];
-        let taskMap = [];
-        for (const task of tasks) {
-            if (task.source == "Workspace") {
-                taskMap.push(task);
-            }
-        }
+        tasks.filter(task => task.source !== "Workspace");
         const configuration = vscode.workspace.getConfiguration();
         if (configuration) {
             const tasksJson = configuration.inspect('tasks');
             if (tasksJson) {
-                matchTasks(taskStatusBars, taskMap, tasksJson.globalValue);
-                matchTasks(taskStatusBars, taskMap, tasksJson.workspaceValue);
+                matchTasks(taskStatusBars, tasks, tasksJson.globalValue);
+                matchTasks(taskStatusBars, tasks, tasksJson.workspaceValue);
             }
         }
         for (const workspaceFolder of vscode.workspace.workspaceFolders) {
@@ -434,11 +432,11 @@ function loadTasks() {
             if (configuration) {
                 const tasksJson = configuration.inspect('tasks');
                 if (tasksJson) {
-                    matchTasks(taskStatusBars, taskMap, tasksJson.workspaceFolderValue);
+                    matchTasks(taskStatusBars, tasks, tasksJson.workspaceFolderValue);
                 }
             }
         }
-        for (const task of taskMap) {
+        for (const task of tasks) {
             LOG(`No match task: ${task.name}`);
         }
         if (taskStatusBars.length > 0) {
