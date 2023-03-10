@@ -272,15 +272,7 @@ function matchDefinition(a, b) {
     return true;
 }
 
-function matchTask(taskMap, taskName, taskDefinition) {
-    if (!(taskName in taskMap)) {
-        return;
-    }
-    const ary = taskMap[taskName];
-    if (ary.length == 1) {
-        delete taskMap[taskName];
-        return ary[0];
-    }
+function matchTask(ary, taskDefinition) {
     for (let i = 0; i < ary.length; ++i) {
         const v = ary[i];
         if (matchDefinition(v.definition, taskDefinition)) {
@@ -370,20 +362,24 @@ function matchTasks(taskStatusBars, taskMap, config) {
         return;
     }
     for (const taskCfg of config.tasks) {
-        const taskName = "label" in taskCfg ? taskCfg.label : taskCfg.taskName;
         const taskInfo = computeTaskInfo(taskCfg, config);
-        const taskDefinition = computeTaskDefinition(taskInfo);
-        const task = matchTask(taskMap, taskName, taskDefinition);
-        if (!task) {
-            LOG(`Not found task: ${taskName}`);
-            continue;
-        }
         const hide = getStatusBarValue(taskInfo, "hide");
         if (hide) {
             continue;
         }
         let label = getStatusBarValue(taskInfo, "label");
-        if (!label) {
+        const taskDefinition = computeTaskDefinition(taskInfo);
+        const task = matchTask(taskMap, taskDefinition);
+        if (!task) {
+            if (label !== undefined) {
+                LOG(`Not found task: ${label}`);
+            }
+            else {
+                LOG(`Not found task: { type:${taskCfg.type} }`);
+            }
+            continue;
+        }
+        if (label === undefined) {
             if (VSCodeVersion >= 69) {
                 const icon = taskInfo.icon;
                 if (icon && icon.id) {
@@ -419,15 +415,10 @@ function loadTasks() {
     vscode.tasks.fetchTasks().then((tasks) => {
         memoryStatusBarArray = [];
         let taskStatusBars = [];
-        let taskMap = {};
+        let taskMap = [];
         for (const task of tasks) {
             if (task.source == "Workspace") {
-                if (task.name in taskMap) {
-                    taskMap[task.name].push(task);
-                }
-                else {
-                    taskMap[task.name] = [task];
-                }
+                taskMap.push(task);
             }
         }
         const configuration = vscode.workspace.getConfiguration();
@@ -447,8 +438,8 @@ function loadTasks() {
                 }
             }
         }
-        for (const taskName in taskMap) {
-            LOG(`No match task: ${taskName}`);
+        for (const task of taskMap) {
+            LOG(`No match task: ${task.name}`);
         }
         if (taskStatusBars.length > 0) {
             for (const info of taskStatusBars) {
