@@ -261,11 +261,17 @@ function deepEqual(a, b) {
     return true;
 }
 
-function matchDefinition(a, b) {
-    if (a.type === "$empty" || a.type === "$composite") {
-        //TODO
-        return true;
+function matchComposite(a, b) {
+    if (a.detail !== b.detail) {
+        return false;
     }
+    if (a.name !== b.label) {
+        return false;
+    }
+    return true;
+}
+
+function matchDefinition(a, b) {
     for (const k in a) {
         const v = a[k];
         if (deepEqual(v, b[k])) {
@@ -275,11 +281,18 @@ function matchDefinition(a, b) {
     return true;
 }
 
-function matchTask(ary, taskDefinition) {
-    for (let i = 0; i < ary.length; ++i) {
-        const v = ary[i];
-        if (matchDefinition(v.definition, taskDefinition)) {
-            ary.splice(i, 1);
+function matchTask(tasks, taskInfo) {
+    const taskDefinition = computeTaskDefinition(taskInfo);
+    for (let i = 0; i < tasks.length; ++i) {
+        const v = tasks[i];
+        if (v.definition.type === "$empty" || v.definition.type === "$composite") {
+            if (matchComposite(v, taskInfo)) {
+                tasks.splice(i, 1);
+                return v;
+            }
+        }
+        else if (matchDefinition(v.definition, taskDefinition)) {
+            tasks.splice(i, 1);
             return v;
         }
     }
@@ -360,7 +373,7 @@ function syncStatusBar() {
     }
 }
 
-function matchTasks(taskStatusBars, taskMap, config) {
+function matchTasks(taskStatusBars, tasks, config) {
     if (typeof config != "object" || !Array.isArray(config.tasks)) {
         return;
     }
@@ -371,8 +384,7 @@ function matchTasks(taskStatusBars, taskMap, config) {
             continue;
         }
         let label = getStatusBarValue(taskInfo, "label");
-        const taskDefinition = computeTaskDefinition(taskInfo);
-        const task = matchTask(taskMap, taskDefinition);
+        const task = matchTask(tasks, taskInfo);
         if (!task) {
             if (label !== undefined) {
                 LOG(`Not found task: ${label}`);
