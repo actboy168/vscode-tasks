@@ -439,12 +439,14 @@ function loadTasks() {
                 matchTasks(taskStatusBars, tasks, tasksJson.workspaceValue);
             }
         }
-        for (const workspaceFolder of vscode.workspace.workspaceFolders) {
-            const configuration = vscode.workspace.getConfiguration(null, workspaceFolder.uri);
-            if (configuration) {
-                const tasksJson = configuration.inspect('tasks');
-                if (tasksJson) {
-                    matchTasks(taskStatusBars, tasks, tasksJson.workspaceFolderValue);
+        if (vscode.workspace.workspaceFile !== undefined) {
+            for (const workspaceFolder of vscode.workspace.workspaceFolders) {
+                const configuration = vscode.workspace.getConfiguration(null, workspaceFolder.uri);
+                if (configuration) {
+                    const tasksJson = configuration.inspect('tasks');
+                    if (tasksJson) {
+                        matchTasks(taskStatusBars, tasks, tasksJson.workspaceFolderValue);
+                    }
                 }
             }
         }
