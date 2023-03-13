@@ -420,6 +420,7 @@ function matchTasksInScope(taskStatusBars, tasks, config) {
 }
 
 function matchAllTasks(tasks) {
+    // todo: use task.scope to filter
     let taskStatusBars = [];
     const configuration = vscode.workspace.getConfiguration();
     if (configuration) {
