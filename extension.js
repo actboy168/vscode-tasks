@@ -425,7 +425,6 @@ function matchAllTasks(tasks) {
     if (configuration) {
         const tasksJson = configuration.inspect('tasks');
         if (tasksJson) {
-            matchTasksInScope(taskStatusBars, tasks, tasksJson.globalValue);
             matchTasksInScope(taskStatusBars, tasks, tasksJson.workspaceValue);
         }
     }
