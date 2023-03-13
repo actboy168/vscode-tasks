@@ -373,7 +373,7 @@ function syncStatusBar() {
     }
 }
 
-function matchTasks(taskStatusBars, tasks, config) {
+function matchTasksInScope(taskStatusBars, tasks, config) {
     if (typeof config != "object" || !Array.isArray(config.tasks)) {
         return;
     }
@@ -419,41 +419,46 @@ function matchTasks(taskStatusBars, tasks, config) {
     }
 }
 
+function matchAllTasks(tasks) {
+    let taskStatusBars = [];
+    const configuration = vscode.workspace.getConfiguration();
+    if (configuration) {
+        const tasksJson = configuration.inspect('tasks');
+        if (tasksJson) {
+            matchTasksInScope(taskStatusBars, tasks, tasksJson.globalValue);
+            matchTasksInScope(taskStatusBars, tasks, tasksJson.workspaceValue);
+        }
+    }
+    if (vscode.workspace.workspaceFile !== undefined) {
+        for (const workspaceFolder of vscode.workspace.workspaceFolders) {
+            const configuration = vscode.workspace.getConfiguration(null, workspaceFolder.uri);
+            if (configuration) {
+                const tasksJson = configuration.inspect('tasks');
+                if (tasksJson) {
+                    matchTasksInScope(taskStatusBars, tasks, tasksJson.workspaceFolderValue);
+                }
+            }
+        }
+    }
+    for (const task of tasks) {
+        LOG(`No match task: ${task.name}`);
+    }
+    return taskStatusBars;
+}
+
 function loadTasks() {
-    memoryStatusBarArray = [];
     if (vscode.workspace.workspaceFolders === undefined) {
+        memoryStatusBarArray = [];
         syncStatusBar();
         closeUpdateStatusBar();
         return;
     }
 
     vscode.tasks.fetchTasks().then((tasks) => {
-        memoryStatusBarArray = [];
-        let taskStatusBars = [];
         tasks.filter(task => task.source !== "Workspace");
-        const configuration = vscode.workspace.getConfiguration();
-        if (configuration) {
-            const tasksJson = configuration.inspect('tasks');
-            if (tasksJson) {
-                matchTasks(taskStatusBars, tasks, tasksJson.globalValue);
-                matchTasks(taskStatusBars, tasks, tasksJson.workspaceValue);
-            }
-        }
-        if (vscode.workspace.workspaceFile !== undefined) {
-            for (const workspaceFolder of vscode.workspace.workspaceFolders) {
-                const configuration = vscode.workspace.getConfiguration(null, workspaceFolder.uri);
-                if (configuration) {
-                    const tasksJson = configuration.inspect('tasks');
-                    if (tasksJson) {
-                        matchTasks(taskStatusBars, tasks, tasksJson.workspaceFolderValue);
-                    }
-                }
-            }
-        }
-        for (const task of tasks) {
-            LOG(`No match task: ${task.name}`);
-        }
+        let taskStatusBars = matchAllTasks(tasks);
         if (taskStatusBars.length > 0) {
+            memoryStatusBarArray = [];
             for (const info of taskStatusBars) {
                 createTaskStatusBar(info);
             }
@@ -462,6 +467,7 @@ function loadTasks() {
             openUpdateStatusBar();
         }
         else {
+            memoryStatusBarArray = [];
             syncStatusBar();
             closeUpdateStatusBar();
         }
