@@ -17,6 +17,11 @@
                 },
                 "tooltip": {
                     "type": "string",
+                    "default": "[deprecated] use detail",
+                    "description": "[deprecated] Set the tooltip of the statusbar."
+                },
+                "detail": {
+                    "type": "string",
                     "default": "tooltip for statusbar",
                     "description": "Set the tooltip of the statusbar."
                 },

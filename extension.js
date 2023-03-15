@@ -159,20 +159,36 @@ function computeTaskInfo(task, config) {
     return t
 }
 
-function getStatusBarValue(task, key) {
-    if (("options" in task) && (typeof task.options === 'object')
-        && ("statusbar" in task.options) && (typeof task.options.statusbar === 'object')
-        && (key in task.options.statusbar)) {
-        return task.options.statusbar[key];
+const VSCodeAttribute = {
+    label: true,
+    detail: true,
+};
+
+const HasDefaultAttribute = {
+    hide: true,
+    color: true,
+};
+
+function getAttribute(task, key) {
+    if (("options" in task) && (typeof task.options === 'object')) {
+        if (("statusbar" in task.options) && (typeof task.options.statusbar === 'object')) {
+            if (key in task.options.statusbar) {
+                return task.options.statusbar[key];
+            }
+        }
     }
-    if (key in task) {
-        return task[key];
+    if (key in VSCodeAttribute) {
+        if (key in task) {
+            return task[key];
+        }
     }
-    const settings = vscode.workspace.getConfiguration("tasks.statusbar.default");
-    if (settings !== undefined) {
+    if (key in HasDefaultAttribute) {
+        const settings = vscode.workspace.getConfiguration("tasks.statusbar.default");
+        if (settings === undefined) {
+            return;
+        }
         return settings[key];
     }
-    return undefined;
 }
 
 function computeTaskExecutionId(taskInfo, type) {
@@ -326,7 +342,7 @@ function createTaskStatusBar(info) {
     const task = info.task;
     memoryStatusBarArray.push({
         text: info.label,
-        tooltip: convertTooltip(info.tooltip || task.detail),
+        tooltip: convertTooltip(info.detail),
         color: convertColor(info.color),
         backgroundColor: info.backgroundColor? new vscode.ThemeColor(info.backgroundColor): undefined,
         filePattern: info.filePattern,
@@ -379,11 +395,11 @@ function matchTasksInScope(taskStatusBars, tasks, config) {
     }
     for (const taskCfg of config.tasks) {
         const taskInfo = computeTaskInfo(taskCfg, config);
-        const hide = getStatusBarValue(taskInfo, "hide");
+        const hide = getAttribute(taskInfo, "hide");
         if (hide) {
             continue;
         }
-        let label = getStatusBarValue(taskInfo, "label");
+        let label = getAttribute(taskInfo, "label");
         const task = matchTask(tasks, taskInfo);
         if (!task) {
             if (label !== undefined) {
@@ -411,10 +427,10 @@ function matchTasksInScope(taskStatusBars, tasks, config) {
         taskStatusBars.push({
             task: task,
             label: label,
-            tooltip: getStatusBarValue(taskInfo, "tooltip"),
-            color: getStatusBarValue(taskInfo, "color"),
-            backgroundColor: getStatusBarValue(taskInfo, "backgroundColor"),
-            filePattern: getStatusBarValue(taskInfo, "filePattern"),
+            detail: getAttribute(taskInfo, "detail") || getAttribute(taskInfo, "tooltip"), // TODO: deprecated tooltip
+            color: getAttribute(taskInfo, "color"),
+            backgroundColor: getAttribute(taskInfo, "backgroundColor"),
+            filePattern: getAttribute(taskInfo, "filePattern"),
         });
     }
 }
