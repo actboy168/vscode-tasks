@@ -9,10 +9,10 @@ var outputChannel;
 const RunTaskCommand = "actboy168.run-task"
 const SelectTaskCommand = "actboy168.select-task"
 
-const VSCodeVersion = (function() {
-    const res = vscode.version.split(".");
-    return parseInt(res[1]);
-})()
+//const VSCodeVersion = (function() {
+//    const res = vscode.version.split(".");
+//    return parseInt(res[1]);
+//})()
 
 function LOG(msg) {
     if (outputChannel === undefined) {
@@ -161,6 +161,7 @@ function computeTaskInfo(task, config) {
 
 const VSCodeAttribute = {
     label: true,
+    icon: true,
     detail: true,
 };
 
@@ -410,23 +411,15 @@ function matchTasksInScope(taskStatusBars, tasks, config) {
             }
             continue;
         }
-        if (label === undefined) {
-            if (VSCodeVersion >= 69) {
-                const icon = taskInfo.icon;
-                if (icon && icon.id) {
-                    label = `$(${icon.id}) ${task.name}`;
-                }
-                else {
-                    label = task.name;
-                }
-            }
-            else {
-                label = task.name;
-            }
+        label = label || task.name;
+        const icon = getAttribute(taskInfo, "icon");
+        if (icon && icon.id) {
+            label = `$(${icon.id}) ${label}`;
         }
         taskStatusBars.push({
             task: task,
             label: label,
+            icon: getAttribute(taskInfo, "icon"),
             detail: getAttribute(taskInfo, "detail") || getAttribute(taskInfo, "tooltip"), // TODO: deprecated tooltip
             color: getAttribute(taskInfo, "color"),
             backgroundColor: getAttribute(taskInfo, "backgroundColor"),

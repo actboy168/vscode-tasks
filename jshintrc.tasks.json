@@ -5,25 +5,31 @@
             "type": "object",
             "description": "Set the task to display in the statusbar.",
             "properties": {
-                "hide": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Controls whether this task should be displayed in the statusbar."
-                },
                 "label": {
                     "type": "string",
                     "default": "label for statusbar",
                     "description": "Set the label of the statusbar.\nYou can embed icons in the text by leveraging the syntax:\nhttps://code.visualstudio.com/api/references/icons-in-labels\nAbout octicons:\nhttps://octicons.github.com"
                 },
-                "tooltip": {
-                    "type": "string",
-                    "default": "[deprecated] use detail",
-                    "description": "[deprecated] Set the tooltip of the statusbar."
-                },
                 "detail": {
                     "type": "string",
                     "default": "tooltip for statusbar",
                     "description": "Set the tooltip of the statusbar."
+                },
+                "icon": {
+                    "type": "object",
+                    "default": { "id": "play" },
+                    "description": "An optional icon for the task",
+                    "properties": {
+                        "id": {
+                            "description": "An optional codicon ID to use",
+                            "type": ["string", "null"]
+                        }
+                    }
+                },
+                "hide": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Controls whether this task should be displayed in the statusbar."
                 },
                 "color": {
                     "type": "string",
@@ -43,6 +49,11 @@
                     "type": "string",
                     "default": "",
                     "description": "Set the active editor file pattern for which the statusbar is displayed.\nLeave blank to have always displayed."
+                },
+                "tooltip": {
+                    "type": "string",
+                    "default": "[deprecated] use detail",
+                    "description": "[deprecated] Set the tooltip of the statusbar."
                 }
             }
         },
