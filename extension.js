@@ -419,7 +419,6 @@ function matchTasksInScope(taskStatusBars, tasks, config) {
         taskStatusBars.push({
             task: task,
             label: label,
-            icon: getAttribute(taskInfo, "icon"),
             detail: getAttribute(taskInfo, "detail") || getAttribute(taskInfo, "tooltip"), // TODO: deprecated tooltip
             color: getAttribute(taskInfo, "color"),
             backgroundColor: getAttribute(taskInfo, "backgroundColor"),
