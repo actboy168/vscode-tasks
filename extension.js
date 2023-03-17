@@ -163,6 +163,7 @@ const VSCodeAttribute = {
     label: true,
     icon: true,
     detail: true,
+    hide: true,
 };
 
 const HasDefaultAttribute = {
