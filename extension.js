@@ -45,7 +45,7 @@ function updateStatusBar() {
             if (typeof settings.limit === "number" && settings.limit <= count) {
                 selectList.push({
                     label: statusBar.text,
-                    description: statusBar.tooltip? statusBar.tooltip.value: undefined,
+                    description: statusBar.tooltip ? statusBar.tooltip.value : undefined,
                     task: statusBar.command.arguments[0]
                 });
             }
@@ -57,7 +57,7 @@ function updateStatusBar() {
     }
 
     if (selectList.length > 0) {
-        statusBarArray[statusBarArray.length-1].show();
+        statusBarArray[statusBarArray.length - 1].show();
     }
 }
 
@@ -112,7 +112,7 @@ function deepClone(a, b) {
     if (Array.isArray(b)) {
         return b.slice();
     }
-    let o = typeof a === "object"? a: {};
+    let o = typeof a === "object" ? a : {};
     for (const k in b) {
         o[k] = deepClone(o[k], b[k]);
     }
@@ -244,7 +244,7 @@ function computeTaskExecutionDefinition(taskInfo, type) {
         };
     }
     return {
-        type: id !== undefined? type: "$empty",
+        type: id !== undefined ? type : "$empty",
         id: id
     };
 }
@@ -272,7 +272,7 @@ function deepEqual(a, b) {
         return false;
     }
     for (const key of a_keys) {
-        if (!deepEqual(a[key], b[key])){
+        if (!deepEqual(a[key], b[key])) {
             return false;
         }
     }
@@ -346,7 +346,7 @@ function createTaskStatusBar(info) {
         text: info.label,
         tooltip: convertTooltip(info.detail),
         color: convertColor(info.color),
-        backgroundColor: info.backgroundColor? new vscode.ThemeColor(info.backgroundColor): undefined,
+        backgroundColor: info.backgroundColor ? new vscode.ThemeColor(info.backgroundColor) : undefined,
         filePattern: info.filePattern,
         command: {
             command: RunTaskCommand,
