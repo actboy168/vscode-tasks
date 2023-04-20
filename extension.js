@@ -484,6 +484,33 @@ function loadTasks() {
     });
 }
 
+const MinimumFetchInterval = 1000;
+var fetchLastTime = 0;
+var fetchTimer;
+
+function loadTasksDelay(timeout) {
+    if (fetchTimer !== undefined) {
+        clearTimeout(fetchTimer);
+    }
+    fetchTimer = setTimeout(() => {
+        fetchTimer = undefined;
+        fetchLastTime = Date.now();
+        loadTasks();
+    }, timeout);
+}
+
+function loadTasksWait() {
+    const now = Date.now();
+    if (now < fetchLastTime + MinimumFetchInterval) {
+        loadTasksDelay(MinimumFetchInterval);
+    } else {
+        if (fetchTimer === undefined) {
+            fetchLastTime = now;
+            loadTasks();
+        }
+    }
+}
+
 function runTask(task) {
     vscode.tasks.executeTask(task).catch((err) => {
         vscode.window.showWarningMessage(err.message).then(_ => undefined);
@@ -491,36 +518,38 @@ function runTask(task) {
 }
 
 function activate(context) {
-    context.subscriptions.push(vscode.commands.registerCommand(RunTaskCommand, (args) => {
-        switch (typeof args) {
-            case "number":
-                const statusBar = statusBarArray[args - 1];
-                if (statusBar) {
-                    const task = statusBar.command.arguments[0];
-                    runTask(task);
-                }
-                else {
-                    LOG(`Not found task #${args}`);
-                }
-                break;
-            case "object":
-                runTask(args);
-                break;
-            default:
-                LOG(`Invalid task: ${args}`);
-                break;
-        }
-    }));
-    context.subscriptions.push(vscode.commands.registerCommand(SelectTaskCommand, () => {
-        vscode.window.showQuickPick(selectList, { placeHolder: "Select task to execute" }).then(value => {
-            if (value !== undefined) {
-                runTask(value.task);
+    context.subscriptions.push(
+        vscode.commands.registerCommand(RunTaskCommand, (args) => {
+            switch (typeof args) {
+                case "number":
+                    const statusBar = statusBarArray[args - 1];
+                    if (statusBar) {
+                        const task = statusBar.command.arguments[0];
+                        runTask(task);
+                    }
+                    else {
+                        LOG(`Not found task #${args}`);
+                    }
+                    break;
+                case "object":
+                    runTask(args);
+                    break;
+                default:
+                    LOG(`Invalid task: ${args}`);
+                    break;
             }
-        })
-    }));
-    context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(loadTasks));
-    context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders(loadTasks));
-    loadTasks();
+        }),
+        vscode.commands.registerCommand(SelectTaskCommand, () => {
+            vscode.window.showQuickPick(selectList, { placeHolder: "Select task to execute" }).then(value => {
+                if (value !== undefined) {
+                    runTask(value.task);
+                }
+            })
+        }),
+        vscode.workspace.onDidChangeConfiguration(loadTasksWait),
+        vscode.workspace.onDidChangeWorkspaceFolders(loadTasksWait)
+    );
+    loadTasksDelay(0);
 }
 
 exports.activate = activate;
