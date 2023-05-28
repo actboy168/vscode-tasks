@@ -63,6 +63,11 @@
                 "tasks.statusbar.select.color": {
                     "type": "string",
                     "default": ""
+                },
+                "tasks.statusbar.default.indicator": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show visual representation for running tasks (preview)"
                 }
             }
         }
