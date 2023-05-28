@@ -1,5 +1,6 @@
 const vscode = require('vscode');
 const os = require('os');
+const crypto = require('crypto')
 
 var statusBarArray = [];
 var memoryStatusBarArray = [];
@@ -8,6 +9,11 @@ var eventChangeActiveTextEditor;
 var outputChannel;
 const RunTaskCommand = "actboy168.run-task"
 const SelectTaskCommand = "actboy168.select-task"
+
+var indicatorDisposeArray = [];
+var statusBarMap = {};
+const BAR_TEXT_RUNNING = "$(sync~spin) ";
+const TASK_STATUS = {START: 1, END: 9};
 
 //const VSCodeVersion = (function() {
 //    const res = vscode.version.split(".");
@@ -279,6 +285,13 @@ function deepEqual(a, b) {
     return true;
 }
 
+function hashObj(obj) {
+    let data = JSON.stringify(obj);
+    let hash = crypto.createHash("md5");
+    hash.update(data);
+    return hash.digest("hex");
+}
+
 function matchComposite(a, b) {
     if (a.detail !== b.detail) {
         return false;
@@ -388,6 +401,16 @@ function syncStatusBar() {
         to.backgroundColor = from.backgroundColor;
         to.filePattern = from.filePattern;
         to.command = from.command;
+
+        // save task-statusBar bindings
+        if (from.command && from.command.arguments) {
+            let tasks = from.command.arguments;
+            // TODO: when from.command.arguments has more then one task
+            let task =  tasks.length > 0 ? tasks[0] : null;
+            if (task) {
+                statusBarMap[hashObj(task)] = {bar: to, text: to.text};
+            }
+        }
     }
 }
 
@@ -469,6 +492,7 @@ function loadTasks() {
         let taskStatusBars = matchAllTasks(tasks);
         if (taskStatusBars.length > 0) {
             memoryStatusBarArray = [];
+            statusBarMap = {};
             for (const info of taskStatusBars) {
                 createTaskStatusBar(info);
             }
@@ -517,8 +541,57 @@ function runTask(task) {
     });
 }
 
+/**
+ * change the statusBar representation on task execution event
+ * @param {*} barConfig 
+ * @param {*} status 
+ */
+function updateBarStatus(barConfig, status) {
+    if (barConfig && barConfig.bar && barConfig.text) {
+        barConfig.bar.text = status === TASK_STATUS.START ? BAR_TEXT_RUNNING + barConfig.text : barConfig.text
+    }
+}
+
+/**
+ * get statusBar binding for task(by hash value of task definition)
+ * @param {*} task 
+ * @returns 
+ */
+function getStatusBarByTask(task) {
+    return statusBarMap[hashObj(task)]
+}
+
+function syncIndicatorWithConfiguration(context) {
+    let config = vscode.workspace.getConfiguration("tasks.statusbar.default");
+    if (config["indicator"]) {
+        indicatorDisposeArray.forEach(d => {
+            d.dispose();
+        });
+        indicatorDisposeArray = [];
+        let taskStartListener = vscode.tasks.onDidStartTask((e) => {
+            updateBarStatus(getStatusBarByTask(e.execution.a), TASK_STATUS.START);
+        });
+        let taskEndListener = vscode.tasks.onDidEndTask((e) => {
+            updateBarStatus(getStatusBarByTask(e.execution.a), TASK_STATUS.END);
+        })
+        indicatorDisposeArray.push(taskStartListener, taskEndListener);
+        context.subscriptions.push(taskStartListener, taskEndListener);
+    } else {
+        indicatorDisposeArray.forEach(d => {
+            d.dispose();
+        });
+        indicatorDisposeArray = [];
+    }
+}
+
 function activate(context) {
+    syncIndicatorWithConfiguration(context);
+
     context.subscriptions.push(
+        vscode.workspace.onDidChangeConfiguration(async (e) => {
+            syncIndicatorWithConfiguration(context);
+        }),
+
         vscode.commands.registerCommand(RunTaskCommand, (args) => {
             switch (typeof args) {
                 case "number":
