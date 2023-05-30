@@ -570,12 +570,12 @@ function activate(context) {
         }),
         vscode.workspace.onDidChangeConfiguration(loadTasksWait),
         vscode.workspace.onDidChangeWorkspaceFolders(loadTasksWait),
-        context.subscriptions.push(vscode.tasks.onDidStartTask((e)=>{
+        vscode.tasks.onDidStartTask((e) => {
             refreshTask(e.execution.task);
-        })),
-        context.subscriptions.push(vscode.tasks.onDidEndTask((e)=>{
+        }),
+        vscode.tasks.onDidEndTask((e) => {
             refreshTask(e.execution.task);
-        })),
+        }),
     );
     loadTasksDelay(0);
 }
