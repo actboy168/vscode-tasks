@@ -1,49 +1,78 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "definitions": {
+        "label": {
+            "type": "string",
+            "default": "label for statusbar",
+            "description": "Set the label of the statusbar.\nYou can embed icons in the text by leveraging the syntax:\nhttps://code.visualstudio.com/api/references/icons-in-labels\nAbout octicons:\nhttps://octicons.github.com"
+        },
+        "icon": {
+            "type": "object",
+            "default": { "id": "play" },
+            "description": "An optional icon for the task",
+            "properties": {
+                "id": {
+                    "description": "An optional codicon ID to use",
+                    "type": ["string", "null"]
+                }
+            }
+        },
+        "color": {
+            "type": "string",
+            "default": "#FFF",
+            "format": "color",
+            "description": "Set the foreground color of the statusbar.\nhttps://code.visualstudio.com/api/references/theme-color"
+        },
+        "backgroundColor": {
+            "type": "string",
+            "enum": [
+                "statusBarItem.errorBackground",
+                "statusBarItem.warningBackground"
+            ],
+            "markdownDescription": "Set the background color of the statusbar.Only the following colors are supported:\n* `statusBarItem.errorBackground`\n*`statusBarItem.warningBackground`"
+        },
         "statusbar": {
             "type": "object",
             "description": "Set the task to display in the statusbar.",
             "properties": {
+                "running": {
+                    "type": "object",
+                    "properties": {
+                        "label": {
+                            "$ref": "#/definitions/label"
+                        },
+                        "icon": {
+                            "$ref": "#/definitions/icon"
+                        },
+                        "color": {
+                            "$ref": "#/definitions/color"
+                        },
+                        "backgroundColor": {
+                            "$ref": "#/definitions/backgroundColor"
+                        }
+                    }
+                },
                 "label": {
-                    "type": "string",
-                    "default": "label for statusbar",
-                    "description": "Set the label of the statusbar.\nYou can embed icons in the text by leveraging the syntax:\nhttps://code.visualstudio.com/api/references/icons-in-labels\nAbout octicons:\nhttps://octicons.github.com"
+                    "$ref": "#/definitions/label"
+                },
+                "icon": {
+                    "$ref": "#/definitions/icon"
+                },
+                "color": {
+                    "$ref": "#/definitions/color"
+                },
+                "backgroundColor": {
+                    "$ref": "#/definitions/backgroundColor"
                 },
                 "detail": {
                     "type": "string",
                     "default": "tooltip for statusbar",
                     "description": "Set the tooltip of the statusbar."
                 },
-                "icon": {
-                    "type": "object",
-                    "default": { "id": "play" },
-                    "description": "An optional icon for the task",
-                    "properties": {
-                        "id": {
-                            "description": "An optional codicon ID to use",
-                            "type": ["string", "null"]
-                        }
-                    }
-                },
                 "hide": {
                     "type": "boolean",
                     "default": true,
                     "description": "Controls whether this task should be displayed in the statusbar."
-                },
-                "color": {
-                    "type": "string",
-                    "default": "#FFF",
-                    "format": "color",
-                    "description": "Set the foreground color of the statusbar.\nhttps://code.visualstudio.com/api/references/theme-color"
-                },
-                "backgroundColor": {
-                    "type": "string",
-                    "enum": [
-                        "statusBarItem.errorBackground",
-                        "statusBarItem.warningBackground"
-                    ],
-                    "markdownDescription": "Set the background color of the statusbar.Only the following colors are supported:\n* `statusBarItem.errorBackground`\n*`statusBarItem.warningBackground`"
                 },
                 "filePattern": {
                     "type": "string",
