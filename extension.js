@@ -469,7 +469,7 @@ function loadTasks() {
     }
 
     vscode.tasks.fetchTasks().then((tasks) => {
-        tasks.filter(task => task.source !== "Workspace");
+        tasks = tasks.filter(task => task.source === "Workspace");
         let memoryStatusBarArray = matchAllTasks(tasks);
         if (memoryStatusBarArray.length > 0) {
             memoryStatusBarArray.push(createSelectStatusBar());
