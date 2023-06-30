@@ -310,15 +310,14 @@ function matchTask(tasks, taskInfo) {
     const taskDefinition = computeTaskDefinition(taskInfo);
     for (let i = 0; i < tasks.length; ++i) {
         const v = tasks[i];
-        if (v.definition.type === "$empty" || v.definition.type === "$composite") {
-            if (matchComposite(v, taskInfo)) {
+        if (matchComposite(v, taskInfo)) {
+            if (v.definition.type === "$empty"
+                || v.definition.type === "$composite"
+                || matchDefinition(v.definition, taskDefinition)
+            ) {
                 tasks.splice(i, 1);
                 return v;
             }
-        }
-        else if (matchDefinition(v.definition, taskDefinition)) {
-            tasks.splice(i, 1);
-            return v;
         }
     }
 }
