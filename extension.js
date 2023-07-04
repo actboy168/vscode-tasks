@@ -290,10 +290,10 @@ function matchComposite(a, b) {
     if (a.detail !== b.detail) {
         return false;
     }
-    if (a.name !== b.label) {
-        return false;
+    if (a.definition.type == "npm") {
+        return a.name === b.script;
     }
-    return true;
+    return a.name === b.label;
 }
 
 function matchDefinition(a, b) {
