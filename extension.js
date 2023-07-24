@@ -158,6 +158,11 @@ function computeTaskInfo(task, config) {
     return t
 }
 
+const ObjectAttribute = {
+    label: "name",
+    detail: "detail",
+};
+
 const VSCodeAttribute = {
     label: true,
     icon: true,
@@ -175,20 +180,26 @@ function isObject(obj) {
     return type === 'object' && !!obj;
 }
 
-function getAttribute(task, key, isRunning) {
-    if (isObject(task.options) && isObject(task.options.statusbar)) {
-        if (isRunning && isObject(task.options.statusbar.running)) {
-            if (key in task.options.statusbar.running) {
-                return task.options.statusbar.running[key];
+function getAttribute(taskObject, taskInfo, key, isRunning) {
+    if (isObject(taskInfo.options) && isObject(taskInfo.options.statusbar)) {
+        if (isRunning && isObject(taskInfo.options.statusbar.running)) {
+            if (key in taskInfo.options.statusbar.running) {
+                return taskInfo.options.statusbar.running[key];
             }
         }
-        if (key in task.options.statusbar) {
-            return task.options.statusbar[key];
+        if (key in taskInfo.options.statusbar) {
+            return taskInfo.options.statusbar[key];
+        }
+    }
+    if (taskObject !== undefined && key in ObjectAttribute) {
+        const objectKey = ObjectAttribute[key];
+        if (objectKey in taskObject) {
+            return taskObject[objectKey];
         }
     }
     if (key in VSCodeAttribute) {
-        if (key in task) {
-            return task[key];
+        if (key in taskInfo) {
+            return taskInfo[key];
         }
     }
     if (key in HasDefaultAttribute) {
@@ -394,13 +405,13 @@ function matchTasksInScope(memoryStatusBarArray, tasks, runningTasks, config) {
     }
     for (const taskCfg of config.tasks) {
         const taskInfo = computeTaskInfo(taskCfg, config);
-        const hide = getAttribute(taskInfo, "hide");
+        const hide = getAttribute(undefined, taskInfo, "hide");
         if (hide) {
             continue;
         }
-        const task = matchTask(tasks, taskInfo);
-        if (!task) {
-            let label = getAttribute(taskInfo, "label");
+        const taskObject = matchTask(tasks, taskInfo);
+        if (!taskObject) {
+            let label = getAttribute(undefined, taskInfo, "label");
             if (label !== undefined) {
                 LOG(`Not found task: ${label}`);
             }
@@ -409,17 +420,16 @@ function matchTasksInScope(memoryStatusBarArray, tasks, runningTasks, config) {
             }
             continue;
         }
-        const isRunning = runningTasks[task._id];
-        let label = getAttribute(taskInfo, "label", isRunning);
-        label = label || task.name;
-        const icon = getAttribute(taskInfo, "icon", isRunning);
+        const isRunning = runningTasks[taskObject._id];
+        let label = getAttribute(taskObject, taskInfo, "label", isRunning);
+        const icon = getAttribute(taskObject, taskInfo, "icon", isRunning);
         if (icon && icon.id) {
             label = `$(${icon.id}) ${label}`;
         }
-        const detail = getAttribute(taskInfo, "detail");
-        const color = getAttribute(taskInfo, "color", isRunning);
-        const backgroundColor = getAttribute(taskInfo, "backgroundColor", isRunning);
-        const filePattern = getAttribute(taskInfo, "filePattern");
+        const detail = getAttribute(taskObject, taskInfo, "detail");
+        const color = getAttribute(taskObject, taskInfo, "color", isRunning);
+        const backgroundColor = getAttribute(taskObject, taskInfo, "backgroundColor", isRunning);
+        const filePattern = getAttribute(taskObject, taskInfo, "filePattern");
         memoryStatusBarArray.push({
             text: label,
             tooltip: convertTooltip(detail),
@@ -428,7 +438,7 @@ function matchTasksInScope(memoryStatusBarArray, tasks, runningTasks, config) {
             filePattern: filePattern,
             command: {
                 command: RunTaskCommand,
-                arguments: [task]
+                arguments: [taskObject]
             }
         })
     }
