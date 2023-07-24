@@ -287,11 +287,17 @@ function deepEqual(a, b) {
 }
 
 function matchComposite(a, b) {
+    if (a.definition.type == "npm") {
+        // TODO: check detail
+        if (b.label === undefined) {
+            return a.name === b.script;
+        }
+        else {
+            return a.name === b.label;
+        }
+    }
     if (a.detail !== b.detail) {
         return false;
-    }
-    if (a.definition.type == "npm") {
-        return a.name === b.script;
     }
     return a.name === b.label;
 }
