@@ -416,7 +416,7 @@ function matchTasksInScope(memoryStatusBarArray, tasks, runningTasks, config) {
         if (icon && icon.id) {
             label = `$(${icon.id}) ${label}`;
         }
-        const detail = getAttribute(taskInfo, "detail") || getAttribute(taskInfo, "tooltip"); // TODO: deprecated tooltip
+        const detail = getAttribute(taskInfo, "detail");
         const color = getAttribute(taskInfo, "color", isRunning);
         const backgroundColor = getAttribute(taskInfo, "backgroundColor", isRunning);
         const filePattern = getAttribute(taskInfo, "filePattern");

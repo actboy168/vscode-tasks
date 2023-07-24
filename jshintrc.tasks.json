@@ -78,11 +78,6 @@
                     "type": "string",
                     "default": "",
                     "description": "Set the active editor file pattern for which the statusbar is displayed.\nLeave blank to have always displayed."
-                },
-                "tooltip": {
-                    "type": "string",
-                    "default": "[deprecated] use detail",
-                    "description": "[deprecated] Set the tooltip of the statusbar."
                 }
             }
         },

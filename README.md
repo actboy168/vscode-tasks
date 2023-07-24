@@ -52,7 +52,7 @@ You can set the tooltip of the statusbar:
 "label": "Test",
 "options": {
   "statusbar": {
-    "tooltip" : "my test"
+    "detail" : "my test"
   }
 }
 ```
