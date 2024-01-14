@@ -371,31 +371,29 @@ function createSelectStatusBar() {
         color: convertColor(settings.color),
         backgroundColor: undefined,
         filePattern: undefined,
+        position: 0,
         command: SelectTaskCommand
     };
 }
 
 function syncStatusBar(memoryStatusBarArray) {
-    const diff = memoryStatusBarArray.length - statusBarArray.length;
-    for (let i = 0; i < diff; ++i) {
-        let statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 50);
-        statusBar.name = "Tasks";
-        statusBarArray.push(statusBar);
-    }
-    for (let i = 0; i < -diff; ++i) {
-        let statusBar = statusBarArray.pop();
-        statusBar.hide();
-        statusBar.dispose();
-    }
+    cleanStatusBar();
+    const offset = vscode.workspace.getConfiguration("tasks.statusbar.offset");
     for (let i = 0; i < memoryStatusBarArray.length; ++i) {
-        let to = statusBarArray[i];
         const from = memoryStatusBarArray[i];
+        let to = vscode.window.createStatusBarItem(
+              (from.position > -Number.EPSILON) ? vscode.StatusBarAlignment.Left : vscode.StatusBarAlignment.Right,
+            -((from.position > -Number.EPSILON) ? (offset?.left ?? 1000) : (offset?.right ?? -1000)) - from.position
+        );
+        to.name = "Tasks";
         to.text = from.text;
         to.tooltip = from.tooltip;
         to.color = from.color;
         to.backgroundColor = from.backgroundColor;
         to.filePattern = from.filePattern;
+        to.position = from.position;
         to.command = from.command;
+        statusBarArray.push(to);
     }
 }
 
@@ -430,12 +428,14 @@ function matchTasksInScope(memoryStatusBarArray, tasks, runningTasks, config) {
         const color = getAttribute(taskObject, taskInfo, "color", isRunning);
         const backgroundColor = getAttribute(taskObject, taskInfo, "backgroundColor", isRunning);
         const filePattern = getAttribute(taskObject, taskInfo, "filePattern");
+        const position = getAttribute(taskObject, taskInfo, "position");
         memoryStatusBarArray.push({
             text: label,
             tooltip: convertTooltip(detail),
             color: convertColor(color),
             backgroundColor: backgroundColor ? new vscode.ThemeColor(backgroundColor) : undefined,
             filePattern: filePattern,
+            position: position || 0,
             command: {
                 command: RunTaskCommand,
                 arguments: [taskObject]
