@@ -66,5 +66,8 @@
                 }
             }
         }
+    },
+    "devDependencies": {
+        "@types/vscode": "^1.75.0"
     }
 }
