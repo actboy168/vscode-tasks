@@ -35,6 +35,10 @@ function updateStatusBar() {
     }
     selectList = [];
 
+    statusBarArray.sort((a, b) => {
+        return a.position - b.position;        
+    });
+ 
     const settings = vscode.workspace.getConfiguration("tasks.statusbar");
     let count = 0;
     const currentFilePath = vscode.window.activeTextEditor && vscode.window.activeTextEditor.document.fileName;
@@ -371,7 +375,7 @@ function createSelectStatusBar() {
         color: convertColor(settings.color),
         backgroundColor: undefined,
         filePattern: undefined,
-        position: 0,
+        position: 100,
         command: SelectTaskCommand
     };
 }
@@ -435,7 +439,7 @@ function matchTasksInScope(memoryStatusBarArray, tasks, runningTasks, config) {
             color: convertColor(color),
             backgroundColor: backgroundColor ? new vscode.ThemeColor(backgroundColor) : undefined,
             filePattern: filePattern,
-            position: position || 0,
+            position: position || 100,
             command: {
                 command: RunTaskCommand,
                 arguments: [taskObject]
