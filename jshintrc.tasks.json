@@ -8,12 +8,17 @@
         },
         "icon": {
             "type": "object",
-            "default": { "id": "play" },
+            "default": {
+                "id": "play"
+            },
             "description": "An optional icon for the task",
             "properties": {
                 "id": {
                     "description": "An optional codicon ID to use",
-                    "type": ["string", "null"]
+                    "type": [
+                        "string",
+                        "null"
+                    ]
                 }
             }
         },
@@ -88,71 +93,74 @@
                     "$ref": "#/definitions/statusbar"
                 }
             }
-        }
-    },
-    "type": "object",
-    "properties": {
-        "windows": {
-            "type": "object",
-            "properties": {
-                "options": {
-                    "$ref": "#/definitions/options"
-                }
-            }
-        },
-        "linux": {
-            "type": "object",
-            "properties": {
-                "options": {
-                    "$ref": "#/definitions/options"
-                }
-            }
-        },
-        "osx": {
-            "type": "object",
-            "properties": {
-                "options": {
-                    "$ref": "#/definitions/options"
-                }
-            }
-        },
-        "options": {
-            "$ref": "#/definitions/options"
         },
         "tasks": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "windows": {
+            "type": "object",
+            "properties": {
+                "windows": {
+                    "type": "object",
+                    "properties": {
+                        "options": {
+                            "$ref": "#/definitions/options"
+                        }
+                    }
+                },
+                "linux": {
+                    "type": "object",
+                    "properties": {
+                        "options": {
+                            "$ref": "#/definitions/options"
+                        }
+                    }
+                },
+                "osx": {
+                    "type": "object",
+                    "properties": {
+                        "options": {
+                            "$ref": "#/definitions/options"
+                        }
+                    }
+                },
+                "options": {
+                    "$ref": "#/definitions/options"
+                },
+                "tasks": {
+                    "type": "array",
+                    "items": {
                         "type": "object",
                         "properties": {
+                            "windows": {
+                                "type": "object",
+                                "properties": {
+                                    "options": {
+                                        "$ref": "#/definitions/options"
+                                    }
+                                }
+                            },
+                            "linux": {
+                                "type": "object",
+                                "properties": {
+                                    "options": {
+                                        "$ref": "#/definitions/options"
+                                    }
+                                }
+                            },
+                            "osx": {
+                                "type": "object",
+                                "properties": {
+                                    "options": {
+                                        "$ref": "#/definitions/options"
+                                    }
+                                }
+                            },
                             "options": {
                                 "$ref": "#/definitions/options"
                             }
                         }
-                    },
-                    "linux": {
-                        "type": "object",
-                        "properties": {
-                            "options": {
-                                "$ref": "#/definitions/options"
-                            }
-                        }
-                    },
-                    "osx": {
-                        "type": "object",
-                        "properties": {
-                            "options": {
-                                "$ref": "#/definitions/options"
-                            }
-                        }
-                    },
-                    "options": {
-                        "$ref": "#/definitions/options"
                     }
                 }
             }
         }
-    }
+    },
+    "$ref": "#/definitions/tasks"
 }

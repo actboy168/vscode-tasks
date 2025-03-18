@@ -37,6 +37,10 @@
             {
                 "fileMatch": "tasks.json",
                 "url": "./jshintrc.tasks.json"
+            },
+            {
+                "fileMatch": "*.code-workspace",
+                "url": "./jshintrc.code-workspace.json"
             }
         ],
         "configuration": {
