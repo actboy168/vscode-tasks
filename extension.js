@@ -277,12 +277,12 @@ function computeTaskDefinition(taskInfo) {
 
 function deepEqual(a, b) {
     const a_type = typeof a;
-    const b_type = typeof a;
+    const b_type = typeof b;
     if (a_type !== b_type) {
         return false;
     }
     if (a_type !== "object") {
-        return a !== b;
+        return a === b;
     }
     const a_keys = Object.keys(a);
     const b_keys = Object.keys(b);
@@ -316,7 +316,7 @@ function matchComposite(a, b) {
 function matchDefinition(a, b) {
     for (const k in a) {
         const v = a[k];
-        if (deepEqual(v, b[k])) {
+        if (!deepEqual(v, b[k])) {
             return false;
         }
     }
@@ -590,7 +590,7 @@ function activate(context) {
         }),
         vscode.tasks.onDidEndTask((e) => {
             refreshTask(e.execution.task);
-        }),
+        })
     );
     loadTasksDelay(0);
 }
