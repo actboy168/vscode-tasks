@@ -4,8 +4,8 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - run: npm install -g vsce ovsx
+    - uses: actions/checkout@v4
+    - run: npm install -g @vscode/vsce ovsx
     - run: npx vsce publish -p ${{ secrets.VSCE_KEY }}
       continue-on-error: true
     - run: npx ovsx publish -p ${{ secrets.OVSX_KEY }}
