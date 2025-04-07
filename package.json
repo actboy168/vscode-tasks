@@ -67,6 +67,19 @@
                 "tasks.statusbar.select.color": {
                     "type": "string",
                     "default": ""
+                },
+                "tasks.statusbar.offset": {
+                    "type": "object",
+                    "properties": {
+                        "left": {
+                            "type": "number",
+                            "default": 1000
+                        },
+                        "right": {
+                            "type": "number",
+                            "default": -1000
+                        }
+                    }
                 }
             }
         }

@@ -83,6 +83,11 @@
                     "type": "string",
                     "default": "",
                     "description": "Set the active editor file pattern for which the statusbar is displayed.\nLeave blank to have always displayed."
+                },
+                "position": {
+                    "type": "number",
+                    "default": 0,
+                    "description": "Set the position in the statusbar.\nTasks are placed left to right with ascending positive values,\nright to left with descending negative values."
                 }
             }
         },
